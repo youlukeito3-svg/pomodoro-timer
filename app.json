@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "RPG Growth App",
+    "slug": "rpg-growth-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#0d0a06"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.rpggrowth.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d0a06"
+      },
+      "package": "com.rpggrowth.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
