@@ -106,7 +106,10 @@ scripts/             ビルド前の資産配置・アイコン生成
 
 ### 公開する
 
-`main` に push すると GitHub Actions が自動でビルドして GitHub Pages に公開します。
-初回だけリポジトリの **Settings → Pages → Source** を **GitHub Actions** に設定してください。
+`main` に push すると GitHub Actions が自動でビルドし、`gh-pages` ブランチへ
+公開します。設定画面での操作は要りません。
 
-公開URL: `https://<ユーザー名>.github.io/<リポジトリ名>/`
+公開URL: https://youlukeito3-svg.github.io/pomodoro-timer/
+
+`gh-pages` ブランチはビルド成果物なので直接編集しないでください
+（毎回のデプロイで上書きされます）。
