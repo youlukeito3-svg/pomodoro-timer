@@ -1,6 +1,13 @@
 name: Build and Deploy
 
 # main への push で GitHub Pages に公開する。
+#
+# 配信元は gh-pages ブランチ。Actions のアーティファクトから配信する方式
+# （actions/deploy-pages）は Pages サイトの新規作成にリポジトリ管理者権限が要り、
+# ワークフローの GITHUB_TOKEN では
+# 「Create Pages site failed: Resource not accessible by integration」で失敗する。
+# ブランチ配信なら contents: write だけで完結し、設定画面での操作も不要。
+#
 # パブリックリポジトリなら Actions の実行時間も Pages のホスティングも無料枠で、
 # このアプリはサーバーを持たないので運用コストは発生しない。
 
@@ -42,17 +49,14 @@ jobs:
       - name: テスト
         run: npm test
 
-  build:
-    # main への push のときだけ公開用のビルドをする
+  deploy:
+    # main への push のときだけ公開する
     if: github.event_name != 'pull_request'
     needs: test
     runs-on: ubuntu-latest
 
-    # configure-pages に Pages を有効化させるために書き込み権限が要る
     permissions:
-      contents: read
-      pages: write
-      id-token: write
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -70,34 +74,22 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build
 
-      # 将来ブランチ配信に切り替えても _next/ が無視されないようにしておく
+      # これが無いと Jekyll が _next/ を無視して配信されない
       - name: .nojekyll を置く
         run: touch out/.nojekyll
 
-      # enablement: true にしておくと、リポジトリで Pages が未設定でも
-      # 初回のワークフロー実行時に「GitHub Actions からの配信」として
-      # 自動で有効化される（設定画面での手動操作が不要になる）
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: out
-
-  deploy:
-    if: github.event_name != 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: gh-pages ブランチへ公開
+        working-directory: out
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy ${GITHUB_SHA}"
+          # 毎回1コミットの履歴にする。ビルド成果物なので履歴を残す意味がなく、
+          # 積み上げるとリポジトリが際限なく膨らむため強制上書きする。
+          git push -q -f \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}" \
+            gh-pages
