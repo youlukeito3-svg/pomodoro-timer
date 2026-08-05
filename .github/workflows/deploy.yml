@@ -45,6 +45,13 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: test
     runs-on: ubuntu-latest
+
+    # configure-pages に Pages を有効化させるために書き込み権限が要る
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -65,7 +72,12 @@ jobs:
       - name: .nojekyll を置く
         run: touch out/.nojekyll
 
+      # enablement: true にしておくと、リポジトリで Pages が未設定でも
+      # 初回のワークフロー実行時に「GitHub Actions からの配信」として
+      # 自動で有効化される（設定画面での手動操作が不要になる）
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
