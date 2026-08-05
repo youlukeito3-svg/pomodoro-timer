@@ -34,7 +34,7 @@ function asymptotic(x: number, k: number): number {
  * 「この程度やっている人が 500 前後」という基準で置いている。
  */
 export const STAT_SCALE = {
-  /** BIG3合計挙上が体重の5倍 → 約500 */
+  /** 主要種目3つの合計挙上が体重の5倍 → 約500 */
   str: 7.2,
   /** 直近28日の総ボリューム 180,000kg → 約600 */
   end: 200_000,
@@ -117,13 +117,19 @@ export function computeStats(input: StatInputs): StatDetails {
   const completed = input.sessions.filter((s) => s.completedAt);
   const recent = completed.filter((s) => isWithinDays(s.date, WINDOW_DAYS, today));
 
-  // --- STR: BIG3の推定1RM合計 ÷ 体重 -------------------------------------
+  // --- STR: 主要コンパウンド種目 上位3つの推定1RM合計 ÷ 体重 ---------------
+  // BIG3 に限定すると、マシンや自重しか使わない人の STR が永久に 0 のままになる。
+  // 「重いものを挙げるコンパウンド種目の上位3つ」なら誰でも伸ばせて、
+  // バーベル環境の人では自然と BIG3 がそこに入る。
   const best = bestOneRepMaxes(completed);
-  let big3Total = 0;
+  const compoundMaxes: number[] = [];
   for (const [exerciseId, oneRm] of best) {
-    if (input.exercises.get(exerciseId)?.isBig3) big3Total += oneRm;
+    const def = input.exercises.get(exerciseId);
+    if (def?.isCompound && !def.isBodyweight) compoundMaxes.push(oneRm);
   }
-  const strRatio = input.bodyWeightKg > 0 ? big3Total / input.bodyWeightKg : 0;
+  compoundMaxes.sort((a, b) => b - a);
+  const strTotal = compoundMaxes.slice(0, 3).reduce((acc, v) => acc + v, 0);
+  const strRatio = input.bodyWeightKg > 0 ? strTotal / input.bodyWeightKg : 0;
 
   // --- END: 直近28日の総挙上ボリューム -----------------------------------
   let volume = 0;
@@ -173,7 +179,10 @@ export function computeStats(input: StatInputs): StatDetails {
     str: {
       raw: strRatio,
       value: asymptotic(strRatio, STAT_SCALE.str),
-      description: `BIG3合計 ${Math.round(big3Total)}kg ÷ 体重 = 体重の${strRatio.toFixed(1)}倍`,
+      description:
+        compoundMaxes.length === 0
+          ? "重量を記録するとここに反映されます"
+          : `主要種目の推定1RM合計 ${Math.round(strTotal)}kg = 体重の${strRatio.toFixed(1)}倍`,
     },
     end: {
       raw: volume,

@@ -10,11 +10,14 @@ import {
 import { FOODS, FOOD_BY_ID, macrosForGrams } from "./foods";
 import { RECIPES, cachedRecipeMacros, findBrokenIngredientRefs } from "./recipes";
 import {
+  MAX_SERVINGS,
+  MAX_SNACK_SERVINGS,
   buildStock,
   fitServings,
   generateMealPlan,
   isAllowed,
   pantryCoverage,
+  portionFit,
 } from "./plan";
 
 const profile: UserProfile = {
@@ -181,9 +184,19 @@ describe("人前の決定", () => {
     expect(fitServings(500, 600)).toBe(1);
   });
 
-  it("0.5〜3.0の範囲に収まる", () => {
+  it("下限0.5・上限は既定で2人前", () => {
     expect(fitServings(500, 10)).toBe(0.5);
-    expect(fitServings(100, 10000)).toBe(3);
+    expect(fitServings(100, 10000)).toBe(MAX_SERVINGS);
+  });
+
+  it("間食だけは上限を広げられる", () => {
+    expect(fitServings(100, 10000, MAX_SNACK_SERVINGS)).toBe(MAX_SNACK_SERVINGS);
+  });
+
+  it("1人前に近いほど分量として自然と評価する", () => {
+    expect(portionFit(1)).toBe(1);
+    expect(portionFit(2)).toBeLessThan(portionFit(1.5));
+    expect(portionFit(2.5)).toBe(0);
   });
 });
 
@@ -295,6 +308,22 @@ describe("献立生成", () => {
       withoutStock.meals.map((m) => m.recipeId),
     );
     expect(withStock.meals.some((m) => m.recipeId === "mapo_tofu")).toBe(true);
+  });
+
+  it("主要な食事で非現実的な分量にならない", () => {
+    // 「しらすごはん 2.5人前」のような、実際には作らない分量を出さないこと
+    for (const weight of [55, 70, 85]) {
+      for (const date of ["2026-08-05", "2026-08-06", "2026-08-07"]) {
+        const target = targetFor({}, weight);
+        const plan = generateMealPlan({
+          date, target, pantry: [], goal: "bulk", dietaryNg: [],
+        });
+        for (const meal of plan.meals) {
+          const limit = meal.slot === "snack" ? MAX_SNACK_SERVINGS : MAX_SERVINGS;
+          expect(meal.servings, `${date} ${meal.slot} ${meal.recipeId}`).toBeLessThanOrEqual(limit);
+        }
+      }
+    }
   });
 
   it("不足食材が買い物リストに出る", () => {

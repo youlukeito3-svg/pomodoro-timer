@@ -1,69 +1,270 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+import Link from "next/link";
+import { useState } from "react";
+import LevelPanel from "@/components/LevelPanel";
+import LevelUpToast from "@/components/LevelUpToast";
+import WeightChart from "@/components/WeightChart";
+import {
+  Bar,
+  Button,
+  Card,
+  Empty,
+  Field,
+  Loading,
+  Page,
+  PageHeader,
+  SectionTitle,
+  SettingsLink,
+  Stat,
+} from "@/components/ui";
+import { logWeight } from "@/lib/actions";
+import { formatJa, todayStr } from "@/lib/date";
+import { SPLIT_LABEL } from "@/lib/types";
+import { useGame } from "@/lib/useGame";
+import type { GameState } from "@/lib/selectors";
+import type { WeightEntry } from "@/lib/types";
+import { EXERCISE_BY_ID } from "@/lib/workout/exercises";
+
+export default function HomePage() {
+  const { data, hydrated, state } = useGame();
+  const today = todayStr();
+
+  if (!hydrated) return <Loading />;
+
+  if (!state.ready || !data.profile) {
+    return (
+      <Page>
+        <PageHeader title="筋トレRPG" subtitle="毎日を積み上げて Lv.9999 を目指す" />
+        <Empty
+          title="まだ設定がありません"
+          hint="身長・体重・目標を登録すると、今日のメニューと食事プランが作られます。"
+          action={
+            <Link href="/profile">
+              <Button>はじめる</Button>
+            </Link>
+          }
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+      </Page>
+    );
+  }
+
+  return (
+    <Page>
+      <LevelUpToast />
+
+      <PageHeader
+        title={`${data.profile.name} のステータス`}
+        subtitle={formatJa(today)}
+        action={<SettingsLink />}
+      />
+
+      <Card>
+        <LevelPanel state={state} compact />
+        <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border pt-3">
+          <Stat label="連続記録" value={state.streak} unit="日" />
+          <Stat label="最長連続" value={state.bestStreak} unit="日" />
+          <Stat label="体重" value={state.bodyWeightKg.toFixed(1)} unit="kg" />
+        </div>
+      </Card>
+
+      <div className="mt-4">
+        <TodayWorkout state={state} />
+      </div>
+
+      <div className="mt-4">
+        <TodayCalories state={state} />
+      </div>
+
+      <div className="mt-4">
+        <WeightSection entries={data.weights} today={today} />
+      </div>
+    </Page>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
+function TodayWorkout({ state }: { state: GameState }) {
+  const plan = state.plan;
+  if (!plan) return null;
+
+  const done = Boolean(state.session?.completedAt);
+  const isRest = plan.split === "rest";
+
+  return (
+    <Card>
+      <SectionTitle right={<span className="text-xs text-fg-dim">{SPLIT_LABEL[plan.split]}</span>}>
+        今日のトレーニング
+      </SectionTitle>
+
+      {isRest ? (
+        <div>
+          <p className="text-sm text-fg-muted">
+            今日は休養日です。回復もトレーニングのうち。体重の記録だけ済ませておきましょう。
           </p>
+          <Link href="/workout">
+            <Button variant="ghost" className="mt-3 w-full">
+              それでも体を動かす
+            </Button>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      ) : (
+        <>
+          <ul className="space-y-1.5">
+            {plan.exercises.map((planned) => {
+              const def = EXERCISE_BY_ID.get(planned.exerciseId);
+              if (!def) return null;
+              return (
+                <li key={planned.exerciseId} className="flex justify-between gap-3 text-sm">
+                  <span>{def.name}</span>
+                  <span className="numeric shrink-0 text-fg-muted">
+                    {planned.sets} × {planned.reps}
+                    {def.repUnit === "sec" ? "秒" : "回"}
+                    {planned.targetWeightKg ? ` / ${planned.targetWeightKg}kg` : ""}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-3 flex items-center justify-between text-xs text-fg-dim">
+            <span>目安 {plan.estimatedMinutes}分</span>
+            <span className="numeric">約 {plan.estimatedKcal} kcal</span>
+          </div>
+
+          <Link href="/workout">
+            <Button className="mt-3 w-full" variant={done ? "ghost" : "primary"}>
+              {done ? "記録を見る（完了済み）" : "トレーニングを始める"}
+            </Button>
+          </Link>
+        </>
+      )}
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
+function TodayCalories({ state }: { state: GameState }) {
+  const { target, consumed } = state;
+  if (!target) return null;
+
+  const remaining = target.kcal - consumed.kcal;
+
+  return (
+    <Card>
+      <SectionTitle right={<Link href="/meals" className="text-xs text-xp">献立を見る</Link>}>
+        今日の食事
+      </SectionTitle>
+
+      <div className="flex items-baseline justify-between">
+        <div>
+          <span className="numeric text-3xl font-bold">{consumed.kcal.toLocaleString("ja-JP")}</span>
+          <span className="text-sm text-fg-muted">
+            {" "}
+            / {target.kcal.toLocaleString("ja-JP")} kcal
+          </span>
         </div>
-      </main>
+        <span className={`numeric text-sm ${remaining < 0 ? "text-warn" : "text-fg-muted"}`}>
+          残り {remaining.toLocaleString("ja-JP")}
+        </span>
+      </div>
+
+      <div className="mt-2">
+        <Bar ratio={target.kcal > 0 ? consumed.kcal / target.kcal : 0} color="var(--color-gold)" />
+      </div>
+
+      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-border pt-3">
+        <MacroStat label="タンパク質" current={consumed.protein} target={target.protein} color="var(--color-str)" />
+        <MacroStat label="脂質" current={consumed.fat} target={target.fat} color="var(--color-end)" />
+        <MacroStat label="炭水化物" current={consumed.carb} target={target.carb} color="var(--color-agi)" />
+      </div>
+
+      {target.workoutKcal > 0 && (
+        <p className="mt-3 text-xs text-fg-dim">
+          今日はトレーニング日なので、消費ぶん {target.workoutKcal} kcal を上乗せしています。
+        </p>
+      )}
+    </Card>
+  );
+}
+
+function MacroStat({
+  label,
+  current,
+  target,
+  color,
+}: {
+  label: string;
+  current: number;
+  target: number;
+  color: string;
+}) {
+  return (
+    <div>
+      <div className="text-xs text-fg-dim">{label}</div>
+      <div className="numeric text-sm font-bold">
+        {Math.round(current)}
+        <span className="text-xs font-normal text-fg-muted"> / {Math.round(target)}g</span>
+      </div>
+      <div className="mt-1">
+        <Bar ratio={target > 0 ? current / target : 0} color={color} height={4} />
+      </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
+function WeightSection({ entries, today }: { entries: WeightEntry[]; today: string }) {
+  const todayEntry = entries.find((e) => e.date === today);
+  const [value, setValue] = useState(String(todayEntry?.weightKg ?? ""));
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const save = () => {
+    const weightKg = Number(value);
+    if (!Number.isFinite(weightKg) || weightKg < 20 || weightKg > 300) {
+      setError("20〜300kgの範囲で入力してください。");
+      return;
+    }
+    setError(null);
+    logWeight({ weightKg });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1800);
+  };
+
+  return (
+    <Card>
+      <SectionTitle right={todayEntry ? <span className="text-xs text-ok">記録済み</span> : undefined}>
+        体重の記録
+      </SectionTitle>
+
+      <div className="flex items-end gap-2">
+        <div className="flex-1">
+          <Field label="今日の体重 (kg)">
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="65.0"
+            />
+          </Field>
+        </div>
+        <Button onClick={save} className="mb-0.5">
+          {todayEntry ? "更新" : "記録"}
+        </Button>
+      </div>
+
+      {error && <p className="mt-2 text-sm text-danger">{error}</p>}
+      {saved && <p className="mt-2 text-sm text-ok">記録しました{todayEntry ? "" : "（+20 XP）"}</p>}
+
+      <div className="mt-4">
+        <WeightChart entries={entries} />
+      </div>
+    </Card>
   );
 }

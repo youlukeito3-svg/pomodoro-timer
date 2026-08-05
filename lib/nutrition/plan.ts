@@ -7,7 +7,7 @@ import type {
   PlannedMeal,
   RecipeDef,
 } from "@/lib/types";
-import { seededShuffle } from "@/lib/date";
+import { seededRandom } from "@/lib/date";
 import { FOOD_BY_ID } from "./foods";
 import { RECIPES, RECIPE_BY_ID, cachedRecipeMacros } from "./recipes";
 import { ZERO_MACROS, addMacros, roundMacros, scaleMacros } from "./bmr";
@@ -38,11 +38,31 @@ const PREFERRED_TAGS: Record<Goal, string[]> = {
 };
 
 /** スコアの重み */
-const WEIGHT_COVERAGE = 0.5;
-const WEIGHT_MACRO_FIT = 0.4;
+const WEIGHT_COVERAGE = 0.4;
+const WEIGHT_MACRO_FIT = 0.3;
+const WEIGHT_PORTION = 0.2;
 const WEIGHT_TAG = 0.1;
-/** 同点時に日替わりで散らすための微小な揺らぎ */
-const JITTER = 0.03;
+
+/**
+ * 日替わりの候補プール。
+ *
+ * 常に最高スコアを採ると毎日まったく同じ献立になる。かといってスコアに
+ * 乱数を混ぜると、在庫が揃っているレシピを取りこぼしてしまう。
+ * そこで「最高スコアと僅差のものだけ」を候補にし、その中から日付で選ぶ。
+ * 明確に優れた候補（＝在庫が揃っている）があるときは差が開くので必ず選ばれ、
+ * 横並びのときだけ日替わりになる。
+ */
+const TOP_N = 3;
+const SCORE_MARGIN = 0.05;
+
+/**
+ * 1食あたりの人前の上限。
+ * 「しらすごはん 2.5人前」のような現実には作らない分量を出さないために要る。
+ * 量で埋めるのではなく、そのスロットの必要量に合ったレシピを選ばせる。
+ */
+export const MAX_SERVINGS = 2;
+/** 間食は「バナナ2本」程度なら自然なので、目標の微調整用に少し広く取る */
+export const MAX_SNACK_SERVINGS = 3;
 
 export interface PantryStock {
   /** foodId -> グラム数 */
@@ -111,12 +131,24 @@ export function isAllowed(recipe: RecipeDef, dietaryNg: readonly string[]): bool
   return recipe.tags.every((t) => !ng.has(t));
 }
 
-/** カロリー予算に合わせた人前（0.5刻み、0.5〜3.0） */
-export function fitServings(recipeKcal: number, budgetKcal: number): number {
+/** カロリー予算に合わせた人前（0.5刻み） */
+export function fitServings(
+  recipeKcal: number,
+  budgetKcal: number,
+  maxServings: number = MAX_SERVINGS,
+): number {
   if (recipeKcal <= 0) return 1;
   const raw = budgetKcal / recipeKcal;
   const stepped = Math.round(raw * 2) / 2;
-  return Math.min(Math.max(stepped, 0.5), 3);
+  return Math.min(Math.max(stepped, 0.5), maxServings);
+}
+
+/**
+ * 分量の自然さ 0〜1。1人前に近いほど高い。
+ * これが無いと、間食サイズのレシピを何倍にもして主食の枠を埋めてしまう。
+ */
+export function portionFit(servings: number): number {
+  return Math.max(1 - Math.abs(servings - 1) / 1.5, 0);
 }
 
 export interface MealPlanResult {
@@ -135,8 +167,11 @@ export function generateMealPlan(params: {
   pantry: readonly PantryItem[];
   goal: Goal;
   dietaryNg: readonly string[];
+  /** 「別の献立にする」で別の候補を出すための種。省略時は日付のみで決定的。 */
+  seedSuffix?: string;
 }): MealPlanResult {
-  const { date, target, pantry, goal, dietaryNg } = params;
+  const { date, target, pantry, goal, dietaryNg, seedSuffix = "" } = params;
+  const seedBase = seedSuffix ? `${date}#${seedSuffix}` : date;
   const stock = buildStock(pantry);
   const preferred = PREFERRED_TAGS[goal];
 
@@ -156,26 +191,33 @@ export function generateMealPlan(params: {
     );
     if (candidates.length === 0) continue;
 
-    // 同点のときに日替わりで別のものが選ばれるよう、先に決定的シャッフルする
-    const shuffled = seededShuffle(candidates, `${date}:${slot}`);
+    const maxServings = slot === "snack" ? MAX_SNACK_SERVINGS : MAX_SERVINGS;
 
-    let best: { recipe: RecipeDef; servings: number; score: number } | null = null;
-    shuffled.forEach((recipe, index) => {
-      const macros = cachedRecipeMacros(recipe);
-      const servings = fitServings(macros.kcal, budget);
-      const scaled = scaleMacros(macros, servings);
+    const scored = candidates
+      .map((recipe) => {
+        const macros = cachedRecipeMacros(recipe);
+        const servings = fitServings(macros.kcal, budget, maxServings);
+        const scaled = scaleMacros(macros, servings);
 
-      const score =
-        WEIGHT_COVERAGE * pantryCoverage(recipe, working, servings) +
-        WEIGHT_MACRO_FIT * macroFit(scaled, remaining) +
-        WEIGHT_TAG * tagScore(recipe, preferred) +
-        JITTER * (1 - index / shuffled.length);
+        const score =
+          WEIGHT_COVERAGE * pantryCoverage(recipe, working, servings) +
+          WEIGHT_MACRO_FIT * macroFit(scaled, remaining) +
+          WEIGHT_PORTION * portionFit(budget / Math.max(macros.kcal, 1)) +
+          WEIGHT_TAG * tagScore(recipe, preferred);
 
-      if (!best || score > best.score) best = { recipe, servings, score };
-    });
+        return { recipe, servings, score };
+      })
+      // 同点は id 順で解決し、結果が配列の並び順に依存しないようにする
+      .sort((a, b) => b.score - a.score || a.recipe.id.localeCompare(b.recipe.id));
 
-    if (!best) continue;
-    const chosen: { recipe: RecipeDef; servings: number; score: number } = best;
+    const bestScore = scored[0]?.score ?? 0;
+    const pool = scored
+      .filter((entry) => entry.score >= bestScore - SCORE_MARGIN)
+      .slice(0, TOP_N);
+
+    const pick = Math.floor(seededRandom(`${seedBase}:${slot}`)() * pool.length);
+    const chosen = pool[Math.min(pick, pool.length - 1)];
+    if (!chosen) continue;
 
     meals.push({ slot, recipeId: chosen.recipe.id, servings: chosen.servings });
     used.add(chosen.recipe.id);
@@ -246,7 +288,7 @@ function adjustSnack(
     return { meals: nextMeals, total: withoutSnack };
   }
 
-  const servings = fitServings(perServing.kcal, needed);
+  const servings = fitServings(perServing.kcal, needed, MAX_SNACK_SERVINGS);
   nextMeals[index] = { ...snack, servings };
 
   return {

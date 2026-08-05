@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 筋トレRPG
 
-## Getting Started
+毎日の筋トレ・食事・体重を記録して、**Lv.9999** を目指す筋トレアプリ。
+成長がRPGのステータス画面のように見えることで、継続そのものを楽しめるようにしています。
 
-First, run the development server:
+> リポジトリ名は `pomodoro-timer` ですが、中身は筋トレアプリです。
+
+## できること
+
+| 機能 | 内容 |
+|---|---|
+| 毎日の筋トレプラン | プロフィール（器具・頻度・レベル）から、その日のメニューを自動で組む |
+| 目標カロリーとレシピ | 基礎代謝から目標kcal/PFCを算出し、それを満たす献立を提案する |
+| レシートで在庫把握 | レシートを撮影すると食材を読み取り、家の在庫として登録する |
+| 体重の記録 | 毎日の体重をグラフで振り返る |
+| RPGステータス | レベル・6種の能力値・クラス・称号で成長を可視化する |
+
+すべての行動（トレーニング完了・挙上量・体重記録・食事目標の達成・連続記録）が
+XPに変換され、Lv.9999 という一本の目標につながります。
+
+## 運用費用ゼロの設計
+
+このアプリは**運用に一切お金がかかりません**。そうなるように構成を選んでいます。
+
+- **サーバーを持たない** — Next.js を静的エクスポート（`output: 'export'`）し、
+  HTML/CSS/JS だけを配信します。従量課金の発生源そのものがありません。
+- **ホスティングは GitHub Pages** — パブリックリポジトリなら無料。ビルドを回す
+  GitHub Actions もパブリックリポジトリでは無料枠です。
+- **データはブラウザ内** — localStorage に保存するのでデータベースが要りません。
+  ログインも不要です。
+- **OCR は端末内で完結** — Tesseract.js（MIT）を WebAssembly で動かします。
+  通信も課金も発生しません。実行資産は外部CDNではなく自前で配信するので、
+  オフラインでも動きます。
+- **AI はキーを持たない（BYOK）** — アプリ側は APIキーを保持しません。
+  使いたい人が自分の Gemini 無料枠のキーを設定したときだけ有効になります。
+
+### AI機能について（任意）
+
+レシートの高精度な読み取りと献立の相談に Google の Gemini API を使えます。
+[Google AI Studio](https://aistudio.google.com/) で無料のAPIキーを発行し、
+アプリの設定画面から登録してください。
+
+**設定しなくてもアプリのすべての機能が使えます。** レシート読み取りは端末内OCRで動き、
+献立の助言は内蔵のルールベース提案が常に出ます。
+
+キーを使う場合は次の点にご注意ください。
+
+- キーはこの端末のブラウザ内にのみ保存され、Google 以外には送信されません。
+- 無料枠では、送信した内容が Google のサービス改善に使われることがあります。
+  レシート画像を送る機能なので、同意できる場合のみ有効にしてください。
+- 無料枠には利用上限があります。上限に達した場合は端末内OCRに切り替えられます。
+- AIの提案は医療・栄養の専門的な助言ではありません。
+
+## 開発
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm test         # 純粋ロジックのユニットテスト
+npm run build    # out/ に静的サイトを出力
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run dev` / `npm run build` の前に、Tesseract の実行資産（約13MB）が
+`node_modules` から `public/tesseract/` へ自動でコピーされます。
+サイズが大きいので Git には含めていません。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+PWA用のアイコンを作り直したいときは `node scripts/generate-icons.mjs` を実行します。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 構成
 
-## Learn More
+```
+app/                 画面（ホーム / トレ / 食事 / 在庫 / ステータス / 設定）
+components/          UI部品
+lib/
+  types.ts           zodスキーマ。型はここから z.infer で導出する
+  store/             localStorage への永続化とストア
+  rpg/               XPカーブ・能力値・クラスと称号
+  workout/           種目マスタとプラン生成
+  nutrition/         BMR/TDEE・食材/レシピマスタ・献立生成・助言
+  ocr/               画像の前処理と Tesseract の実行
+  pantry/            レシート文字列から食材への正規化・照合
+  ai/                Gemini クライアント（BYOK）
+scripts/             ビルド前の資産配置・アイコン生成
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 設計上の要点
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**XPカーブ** — 累積XPとレベルを冪乗則で結んでいます。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+累積XP(L)  = 10 × (L - 1)^1.35
+レベル(xp) = 1 + ⌊(xp / 10)^(1/1.35)⌋
+```
 
-## Deploy on Vercel
+逆関数が閉じた形で書けるのでレベル判定が O(1) で済みます。
+初回のトレーニングで Lv.16 前後まで一気に上がり、1年で Lv.900 前後。
+**Lv.9999 には累計250万XP** が必要で、一生をかけた目標として機能する重みにしてあります。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**能力値** — STR/END/VIT/AGI/DEX/MND の6種を、すべて実際の記録から導出します。
+`999 × (1 - exp(-x/k))` で正規化しているので上限に張り付かず、常に伸びしろが残ります。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**レシート読み取り** — 日本語の感熱紙レシートは OCR が最も難しい部類です。
+そのため画像の適応的二値化 → 価格や集計行の除去 → 半角カナの正規化 →
+食材辞書へのあいまい照合、と段階を踏み、**最後に必ず確認・編集画面を挟みます**。
+機械は下書きを作り、確定は人がする、という前提の設計です。
+
+### 公開する
+
+`main` に push すると GitHub Actions が自動でビルドして GitHub Pages に公開します。
+初回だけリポジトリの **Settings → Pages → Source** を **GitHub Actions** に設定してください。
+
+公開URL: `https://<ユーザー名>.github.io/<リポジトリ名>/`

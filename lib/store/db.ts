@@ -24,8 +24,8 @@ interface StoredEnvelope {
  * スキーマ移行。キー N の関数は「バージョン N のデータを N+1 に変換する」。
  * 将来フィールドを増やしたときはここに追記し、SCHEMA_VERSION を上げる。
  */
-const migrations: Record<number, (data: any) => any> = {
-  // 例: 1: (d) => ({ ...d, newField: [] }),
+const migrations: Record<number, (data: unknown) => unknown> = {
+  // 例: 1: (d) => ({ ...(d as object), newField: [] }),
 };
 
 function migrate(envelope: StoredEnvelope): unknown {

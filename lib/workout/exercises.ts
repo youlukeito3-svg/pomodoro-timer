@@ -5,7 +5,7 @@ import type { Equipment, ExerciseDef, MuscleGroup } from "@/lib/types";
  *
  * difficulty はレベルに応じた解禁に使う（1=誰でも / 5=上級）。
  * met は消費カロリー推定に使う。
- * isBig3 は STR ステータスの算出対象。
+ * isCompound は STR ステータスの算出とプラン生成の優先度に使う。
  */
 
 function ex(
@@ -27,14 +27,13 @@ function ex(
     repUnit: opts.repUnit,
     isCompound: opts.isCompound ?? false,
     isBodyweight: opts.isBodyweight ?? equipment === "bodyweight",
-    isBig3: opts.isBig3,
   };
 }
 
 export const EXERCISES: ExerciseDef[] = [
   // --- 胸 ------------------------------------------------------------------
   ex("bench_press", "ベンチプレス", ["chest", "triceps", "shoulders"], "barbell", {
-    met: 5, difficulty: 2, isCompound: true, isBig3: true, repRange: [6, 10],
+    met: 5, difficulty: 2, isCompound: true, repRange: [6, 10],
   }),
   ex("incline_bench_press", "インクラインベンチプレス", ["chest", "shoulders"], "barbell", {
     met: 5, difficulty: 3, isCompound: true, repRange: [8, 12],
@@ -69,7 +68,7 @@ export const EXERCISES: ExerciseDef[] = [
 
   // --- 背中 ----------------------------------------------------------------
   ex("deadlift", "デッドリフト", ["back", "hamstrings", "glutes"], "barbell", {
-    met: 6, difficulty: 4, isCompound: true, isBig3: true, repRange: [5, 8], defaultSets: 3,
+    met: 6, difficulty: 4, isCompound: true, repRange: [5, 8], defaultSets: 3,
   }),
   ex("bent_over_row", "ベントオーバーロウ", ["back", "biceps"], "barbell", {
     met: 5, difficulty: 3, isCompound: true,
@@ -179,7 +178,7 @@ export const EXERCISES: ExerciseDef[] = [
 
   // --- 脚（前面） ----------------------------------------------------------
   ex("back_squat", "バーベルスクワット", ["quads", "glutes"], "barbell", {
-    met: 6, difficulty: 3, isCompound: true, isBig3: true, repRange: [6, 10],
+    met: 6, difficulty: 3, isCompound: true, repRange: [6, 10],
   }),
   ex("front_squat", "フロントスクワット", ["quads"], "barbell", {
     met: 6, difficulty: 4, isCompound: true, repRange: [6, 10],

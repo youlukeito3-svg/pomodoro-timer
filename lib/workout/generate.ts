@@ -208,9 +208,11 @@ export function generatePlan(params: {
   level: number;
   sessions: readonly WorkoutSession[];
   bodyWeightKg: number;
+  /** 休養日にあえて体を動かしたいときなど、分割を指定したい場合に使う */
+  splitOverride?: Exclude<SplitKey, "rest">;
 }): WorkoutPlan {
-  const { profile, date, level, sessions, bodyWeightKg } = params;
-  const split = splitForDate(profile, date);
+  const { profile, date, level, sessions, bodyWeightKg, splitOverride } = params;
+  const split = splitOverride ?? splitForDate(profile, date);
 
   if (split === "rest") {
     return { date, split, exercises: [], estimatedKcal: 0, estimatedMinutes: 0 };

@@ -150,8 +150,6 @@ export interface ExerciseDef {
   isCompound: boolean;
   /** 自重種目か。XP と重量入力の扱いが変わる。 */
   isBodyweight: boolean;
-  /** BIG3 判定（STR ステータスの算出に使う） */
-  isBig3?: boolean;
 }
 
 export const PlannedExercise = z.object({

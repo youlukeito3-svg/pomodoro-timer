@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tesseract の実行資産はビルド時に node_modules から配置する
+/public/tesseract/

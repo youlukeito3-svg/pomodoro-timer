@@ -133,7 +133,6 @@ describe("トレーニングXP", () => {
     repRange: [8, 12],
     isCompound: true,
     isBodyweight: false,
-    isBig3: true,
   };
   const pushup: ExerciseDef = {
     ...bench,
@@ -141,7 +140,6 @@ describe("トレーニングXP", () => {
     name: "腕立て伏せ",
     equipment: "bodyweight",
     isBodyweight: true,
-    isBig3: false,
   };
   const exercises = new Map([bench, pushup].map((e) => [e.id, e]));
 

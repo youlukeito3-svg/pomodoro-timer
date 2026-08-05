@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Tesseract の実行資産（ビルド時に node_modules からコピーされる
+    // ミニファイ済みのベンダーコード）と Service Worker は対象外にする。
+    "public/tesseract/**",
+    "public/sw.js",
   ]),
 ]);
 
