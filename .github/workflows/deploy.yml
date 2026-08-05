@@ -31,8 +31,10 @@ jobs:
 
       - run: npm ci
 
+      # LayoutProps などの型は Next が .next/types に生成するため、
+      # tsc の前に next typegen を通す必要がある（npm run typecheck が両方やる）
       - name: 型チェック
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Lint
         run: npm run lint
