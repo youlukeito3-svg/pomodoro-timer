@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/* ============================================================
+   RPGステータス画面調のダークテーマ
+   ライトモードは持たない（常時ダーク）。この画面が「ステータス
+   ウィンドウ」であること自体が体験の核なので、明暗は切り替えない。
+   ============================================================ */
+
+@theme {
+  /* 背景: 深い藍〜黒 */
+  --color-bg: #070a14;
+  --color-surface: #0e1424;
+  --color-surface-2: #161e33;
+  --color-border: #26314f;
+
+  /* 文字 */
+  --color-fg: #e8ecf8;
+  --color-fg-muted: #8b97b8;
+  --color-fg-dim: #5a6688;
+
+  /* アクセント: レベル=金, XP=シアン */
+  --color-gold: #f5c451;
+  --color-gold-dim: #8a6c22;
+  --color-xp: #3fd0e0;
+  --color-xp-dim: #1c5f68;
+
+  /* ステータス6色 */
+  --color-str: #ff6b6b;
+  --color-end: #ffa94d;
+  --color-vit: #51cf66;
+  --color-agi: #4dabf7;
+  --color-dex: #cc5de8;
+  --color-mnd: #ffd43b;
+
+  /* 状態色 */
+  --color-ok: #51cf66;
+  --color-warn: #ffa94d;
+  --color-danger: #ff6b6b;
+
+  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic",
+    "Noto Sans JP", "Meiryo", system-ui, sans-serif;
+  --font-numeric: "DIN Alternate", "Menlo", "Consolas", ui-monospace, monospace;
+}
+
+html {
+  background: var(--color-bg);
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  /* iOS でのプルバウンス時に下地の白が見えるのを防ぐ */
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 数値はステータス画面らしく等幅・タビュラーで揃える */
+.numeric {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* セーフエリア（iPhone のホームバー）を避けるための余白 */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* スクロールバーを目立たせない */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+/* フォームが多いアプリなので入力欄の基本形を持たせる */
+input,
+select,
+textarea {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  color: var(--color-fg);
+  width: 100%;
+  /* iOS でフォーカス時に自動ズームされないよう 16px を下回らせない */
+  font-size: 1rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--color-xp);
+  outline-offset: -1px;
+}
+
+/* number 入力のスピナーは邪魔なので消す */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* レベルアップ演出 */
+@keyframes levelup-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gold-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(245 196 81 / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 24px 4px rgb(245 196 81 / 0.25);
+  }
+}
+
+.animate-levelup {
+  animation: levelup-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+.animate-gold-pulse {
+  animation: gold-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-levelup,
+  .animate-gold-pulse {
+    animation: none;
+  }
+}
