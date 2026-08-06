@@ -1,7 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-/** 画面をまたいで使う小さな見た目の部品 */
+/**
+ * 画面をまたいで使う部品。
+ *
+ * RPGのコマンドウィンドウ調。Card と SectionTitle を組み合わせると、
+ * 見出しが枠の上辺に載る形になる（SectionTitle は絶対配置なので、
+ * 各ページの記述を変えずに見た目だけ差し替えられる）。
+ */
 
 export function Page({ children }: { children: ReactNode }) {
   return <div className="mx-auto w-full max-w-lg px-4 py-4">{children}</div>;
@@ -17,10 +23,10 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="mb-4 flex items-start justify-between gap-3">
+    <header className="mb-5 flex items-start justify-between gap-3">
       <div>
-        <h1 className="text-xl font-bold tracking-wide">{title}</h1>
-        {subtitle && <p className="mt-0.5 text-sm text-fg-muted">{subtitle}</p>}
+        <h1 className="text-xl tracking-wider text-gold">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-fg-muted">{subtitle}</p>}
       </div>
       {action}
     </header>
@@ -33,7 +39,7 @@ export function SettingsLink() {
     <Link
       href="/profile"
       aria-label="設定"
-      className="rounded-lg border border-border bg-surface p-2 text-fg-muted hover:text-fg"
+      className="win px-2.5 py-2 text-fg-muted hover:text-gold"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
         <circle cx="12" cy="12" r="3" />
@@ -43,6 +49,7 @@ export function SettingsLink() {
   );
 }
 
+/** コマンドウィンドウ。SectionTitle を中に置くと見出しが枠に載る。 */
 export function Card({
   children,
   className = "",
@@ -54,51 +61,90 @@ export function Card({
 }) {
   return (
     <section
-      className={`rounded-xl border border-border bg-surface p-4 ${
-        glow ? "animate-gold-pulse" : ""
-      } ${className}`}
+      className={`win px-3.5 pb-3.5 pt-4 ${glow ? "shadow-[0_0_18px_rgba(255,210,63,0.28)]" : ""} ${className}`}
     >
       {children}
     </section>
   );
 }
 
+/** ウィンドウの上辺に載る見出し。right は右上に置かれる。 */
 export function SectionTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
-    <div className="mb-2 flex items-center justify-between">
-      <h2 className="text-sm font-semibold tracking-wider text-fg-muted">{children}</h2>
+    <>
+      <h2 className="win-title text-fg">{children}</h2>
+      {right && <div className="win-title-right">{right}</div>}
+    </>
+  );
+}
+
+/**
+ * ウィンドウの外に置く見出し（複数のウィンドウをまとめるとき用）。
+ * SectionTitle は Card の枠に載せる前提の絶対配置なので、
+ * ウィンドウの外で使うと基準を失って画面上部に飛んでしまう。こちらを使う。
+ */
+export function GroupTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
+  return (
+    <div className="mb-2 flex items-center gap-3">
+      <h2 className="text-sm tracking-widest text-fg-muted">{children}</h2>
+      <span className="h-px flex-1 bg-border" />
       {right}
     </div>
   );
 }
 
-/** 汎用の進捗バー */
+/**
+ * 進捗バー。
+ * segments を渡すとブロックに刻んでドット感を出す（レベルや経験値向け）。
+ * 渡さないときは細い連続バー（PFCの小さな指標向け）。
+ */
 export function Bar({
   ratio,
   color = "var(--color-xp)",
   height = 8,
-  track = "var(--color-surface-2)",
+  segments,
 }: {
   ratio: number;
   color?: string;
   height?: number;
-  track?: string;
+  segments?: number;
 }) {
-  const pct = Math.max(0, Math.min(1, ratio)) * 100;
+  const clamped = Math.max(0, Math.min(1, ratio));
+
+  if (segments && segments > 0) {
+    const filled = Math.round(clamped * segments);
+    return (
+      <div className="flex gap-[2px]" role="presentation">
+        {Array.from({ length: segments }, (_, i) => (
+          <span
+            key={i}
+            className="flex-1 border"
+            style={{
+              height,
+              background: i < filled ? color : "var(--color-surface-2)",
+              borderColor: i < filled ? color : "var(--color-border)",
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div
-      className="w-full overflow-hidden rounded-full"
-      style={{ height, background: track }}
+      className="w-full border border-border"
+      style={{ height, background: "var(--color-surface-2)" }}
       role="presentation"
     >
       <div
-        className="h-full rounded-full transition-[width] duration-500"
-        style={{ width: `${pct}%`, background: color }}
+        className="h-full transition-[width] duration-300"
+        style={{ width: `${clamped * 100}%`, background: color }}
       />
     </div>
   );
 }
 
+/** コマンド風のボタン。主要な操作には ▶ カーソルが付く。 */
 export function Button({
   children,
   onClick,
@@ -115,9 +161,9 @@ export function Button({
   className?: string;
 }) {
   const styles = {
-    primary: "bg-gold text-[#1a1405] font-bold hover:brightness-110",
-    ghost: "border border-border bg-surface-2 text-fg hover:border-fg-dim",
-    danger: "border border-danger/50 bg-transparent text-danger hover:bg-danger/10",
+    primary: "border-frame bg-bg text-gold hover:bg-gold/10",
+    ghost: "border-border bg-bg text-fg-muted hover:border-fg-dim hover:text-fg",
+    danger: "border-danger/60 bg-bg text-danger hover:bg-danger/10",
   }[variant];
 
   return (
@@ -125,8 +171,13 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-lg px-4 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:opacity-40 ${styles} ${className}`}
+      className={`rounded-md border-2 px-4 py-2.5 text-sm tracking-wide transition disabled:cursor-not-allowed disabled:opacity-40 ${styles} ${className}`}
     >
+      {variant === "primary" && !disabled && (
+        <span aria-hidden className="mr-1.5 text-[0.7em]">
+          ▶
+        </span>
+      )}
       {children}
     </button>
   );
@@ -152,10 +203,10 @@ export function Field({
 
 export function Empty({ title, hint, action }: { title: string; hint?: string; action?: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-border px-4 py-10 text-center">
+    <div className="win px-4 py-10 text-center">
       <p className="text-sm text-fg-muted">{title}</p>
-      {hint && <p className="mt-1 text-xs text-fg-dim">{hint}</p>}
-      {action && <div className="mt-4">{action}</div>}
+      {hint && <p className="mt-2 text-xs text-fg-dim">{hint}</p>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
@@ -165,7 +216,8 @@ export function Loading() {
   return (
     <Page>
       <div className="flex h-40 items-center justify-center text-sm text-fg-dim">
-        読み込み中…
+        <span className="animate-blink">▶</span>
+        <span className="ml-2">よみこみちゅう…</span>
       </div>
     </Page>
   );
@@ -175,10 +227,42 @@ export function Stat({ label, value, unit }: { label: string; value: ReactNode; 
   return (
     <div>
       <div className="text-xs text-fg-dim">{label}</div>
-      <div className="numeric text-lg font-bold">
+      <div className="numeric text-lg">
         {value}
-        {unit && <span className="ml-0.5 text-xs font-normal text-fg-muted">{unit}</span>}
+        {unit && <span className="ml-0.5 text-xs text-fg-muted">{unit}</span>}
       </div>
     </div>
+  );
+}
+
+/**
+ * コマンドリストの一行。選択中の行に ▶ カーソルが付く。
+ * 種目一覧や献立など「並んだ選択肢」に使う。
+ */
+export function CommandRow({
+  label,
+  value,
+  cursor = false,
+}: {
+  label: ReactNode;
+  value?: ReactNode;
+  cursor?: boolean;
+}) {
+  return (
+    <li
+      className={`flex items-baseline justify-between gap-3 py-1 text-sm ${
+        cursor ? "text-gold" : "pl-[1.15rem]"
+      }`}
+    >
+      <span className="flex-1">
+        {cursor && (
+          <span aria-hidden className="mr-1.5 text-[0.7em]">
+            ▶
+          </span>
+        )}
+        {label}
+      </span>
+      {value && <span className="numeric shrink-0 text-xs text-fg-muted">{value}</span>}
+    </li>
   );
 }

@@ -158,7 +158,7 @@ export default function ReceiptScanner({ onDone }: { onDone?: () => void }) {
     return (
       <Card>
         <SectionTitle right={<span className="text-xs text-fg-dim">{items.length}件</span>}>
-          読み取り結果の確認
+          よみとり けっかの かくにん
         </SectionTitle>
         <p className="mb-3 text-xs text-fg-dim">
           読み取りは完璧ではありません。食材と分量を確認してから登録してください。
@@ -237,7 +237,7 @@ export default function ReceiptScanner({ onDone }: { onDone?: () => void }) {
 
   return (
     <Card>
-      <SectionTitle>レシートから登録</SectionTitle>
+      <SectionTitle>レシートから とうろく</SectionTitle>
 
       {stage === "working" ? (
         <div className="py-6 text-center">

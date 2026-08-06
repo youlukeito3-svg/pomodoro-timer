@@ -1,6 +1,7 @@
 import type {
   AppData,
   DateStr,
+  ExtraFood,
   MealSlot,
   PantryItem,
   PlannedMeal,
@@ -253,7 +254,7 @@ export function saveMealPlan(date: DateStr, meals: PlannedMeal[], target: Macros
     if (data.mealPlans.some((p) => p.date === date)) return data;
     return {
       ...data,
-      mealPlans: [...data.mealPlans, { date, target, meals, eaten: [] }],
+      mealPlans: [...data.mealPlans, { date, target, meals, eaten: [], extras: [] }],
     };
   });
 }
@@ -262,7 +263,14 @@ export function saveMealPlan(date: DateStr, meals: PlannedMeal[], target: Macros
 export function replaceMealPlan(date: DateStr, meals: PlannedMeal[], target: Macros): void {
   updateAppData((data) => {
     const existing = data.mealPlans.find((p) => p.date === date);
-    const entry = { date, target, meals, eaten: existing?.eaten ?? [] };
+    // 献立を作り直しても、食べた記録と献立外の記録は引き継ぐ
+    const entry = {
+      date,
+      target,
+      meals,
+      eaten: existing?.eaten ?? [],
+      extras: existing?.extras ?? [],
+    };
     return {
       ...data,
       mealPlans: data.mealPlans.some((p) => p.date === date)
@@ -270,6 +278,58 @@ export function replaceMealPlan(date: DateStr, meals: PlannedMeal[], target: Mac
         : [...data.mealPlans, entry],
     };
   });
+}
+
+/**
+ * 献立以外に食べたものを記録する。
+ *
+ * 在庫は減らさない。作り置きを食べたのか外で食べたのかを区別できないので、
+ * 連動させるとかえって在庫が実態からずれる。在庫の調整は在庫画面で行う。
+ */
+export function addExtraFood(params: {
+  date?: DateStr;
+  foodId: string;
+  grams: number;
+  slot: MealSlot;
+  target: Macros;
+}): void {
+  const date = params.date ?? todayStr();
+  updateAppData((data) => {
+    const extra: ExtraFood = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      foodId: params.foodId,
+      grams: params.grams,
+      slot: params.slot,
+    };
+
+    const existing = data.mealPlans.find((p) => p.date === date);
+    // 献立をまだ開いていない日でも記録できるようにする
+    if (!existing) {
+      return {
+        ...data,
+        mealPlans: [
+          ...data.mealPlans,
+          { date, target: params.target, meals: [], eaten: [], extras: [extra] },
+        ],
+      };
+    }
+
+    return {
+      ...data,
+      mealPlans: data.mealPlans.map((p) =>
+        p.date === date ? { ...p, extras: [...p.extras, extra] } : p,
+      ),
+    };
+  });
+}
+
+export function removeExtraFood(date: DateStr, id: string): void {
+  updateAppData((data) => ({
+    ...data,
+    mealPlans: data.mealPlans.map((p) =>
+      p.date === date ? { ...p, extras: p.extras.filter((e) => e.id !== id) } : p,
+    ),
+  }));
 }
 
 /**

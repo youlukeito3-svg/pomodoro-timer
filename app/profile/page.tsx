@@ -10,15 +10,18 @@ import {
   ACTIVITY_LABEL,
   EQUIPMENT_LABEL,
   GOAL_LABEL,
+  MUSCLE_LABEL,
   type ActivityLevel,
   type Equipment,
   type Goal,
+  type MuscleGroup,
   type Sex,
   type UserProfile,
 } from "@/lib/types";
 import { Button, Card, Field, Loading, Page, PageHeader, SectionTitle } from "@/components/ui";
 
 const ALL_EQUIPMENT = Object.keys(EQUIPMENT_LABEL) as Equipment[];
+const ALL_MUSCLES = Object.keys(MUSCLE_LABEL) as MuscleGroup[];
 
 export default function ProfilePage() {
   const data = useAppData();
@@ -72,11 +75,20 @@ function ProfileForm() {
   );
   const [daysPerWeek, setDaysPerWeek] = useState(existing?.daysPerWeek ?? 3);
   const [dietaryNg, setDietaryNg] = useState((existing?.dietaryNg ?? []).join("、"));
+  const [excludedMuscles, setExcludedMuscles] = useState<MuscleGroup[]>(
+    existing?.excludedMuscles ?? [],
+  );
   const [error, setError] = useState<string | null>(null);
 
   const toggleEquipment = (item: Equipment) => {
     setEquipment((current) =>
       current.includes(item) ? current.filter((e) => e !== item) : [...current, item],
+    );
+  };
+
+  const toggleMuscle = (item: MuscleGroup) => {
+    setExcludedMuscles((current) =>
+      current.includes(item) ? current.filter((m) => m !== item) : [...current, item],
     );
   };
 
@@ -107,6 +119,7 @@ function ProfileForm() {
         .split(/[、,\s]+/)
         .map((s) => s.trim())
         .filter(Boolean),
+      excludedMuscles,
       // 分割ローテーションの基準日。既存プロフィールでは変えない
       // （変えると今日の種目が別物に入れ替わってしまう）。
       startedAt: existing?.startedAt ?? todayStr(),
@@ -206,6 +219,38 @@ function ProfileForm() {
               );
             })}
           </div>
+        </div>
+
+        <div>
+          <span className="mb-1 block text-sm text-fg-muted">鍛えたくない部位</span>
+          <p className="mb-2 text-xs text-fg-dim">
+            怪我や痛みで避けたい部位を選ぶと、その部位を使う種目はメニューに出しません。
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ALL_MUSCLES.map((item) => {
+              const off = excludedMuscles.includes(item);
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => toggleMuscle(item)}
+                  aria-pressed={off}
+                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                    off
+                      ? "border-danger bg-danger/15 text-danger line-through"
+                      : "border-border bg-surface-2 text-fg-muted"
+                  }`}
+                >
+                  {MUSCLE_LABEL[item]}
+                </button>
+              );
+            })}
+          </div>
+          {excludedMuscles.length > 0 && (
+            <p className="mt-2 text-xs text-warn">
+              除外した部位だけの日は休養日になります。
+            </p>
+          )}
         </div>
 
         <Field label="苦手・アレルギーの食材" hint="読点区切り。例: 納豆、えび">

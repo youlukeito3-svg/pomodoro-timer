@@ -7,19 +7,28 @@ import {
   Button,
   Card,
   Empty,
+  Field,
+  GroupTitle,
   Loading,
   Page,
   PageHeader,
   SectionTitle,
 } from "@/components/ui";
+import FoodSelect from "@/components/FoodSelect";
 import AiCoach from "@/components/AiCoach";
-import { replaceMealPlan, saveMealPlan, toggleMealEaten } from "@/lib/actions";
+import { addExtraFood, removeExtraFood, replaceMealPlan, saveMealPlan, toggleMealEaten } from "@/lib/actions";
 import { formatJa, todayStr } from "@/lib/date";
 import { adviceKindLabel, buildAdvice } from "@/lib/nutrition/advice";
-import { FOOD_BY_ID } from "@/lib/nutrition/foods";
+import { FOOD_BY_ID, macrosForGrams } from "@/lib/nutrition/foods";
 import { buildShoppingList, buildStock, generateMealPlan } from "@/lib/nutrition/plan";
 import { RECIPE_BY_ID, cachedRecipeMacros } from "@/lib/nutrition/recipes";
-import { MEAL_SLOT_LABEL, type MealSlot, type PlannedMeal } from "@/lib/types";
+import {
+  MEAL_SLOT_LABEL,
+  type ExtraFood,
+  type Macros,
+  type MealSlot,
+  type PlannedMeal,
+} from "@/lib/types";
 import { useGame } from "@/lib/useGame";
 
 export default function MealsPage() {
@@ -96,7 +105,7 @@ export default function MealsPage() {
       <PageHeader title="今日の食事" subtitle={formatJa(today)} />
 
       <Card>
-        <SectionTitle>目標</SectionTitle>
+        <SectionTitle>もくひょう</SectionTitle>
         <div className="flex items-baseline justify-between">
           <span className="numeric text-3xl font-bold text-gold">
             {target.kcal.toLocaleString("ja-JP")}
@@ -124,15 +133,15 @@ export default function MealsPage() {
       </Card>
 
       <div className="mt-4">
-        <SectionTitle
+        <GroupTitle
           right={
             <button onClick={regenerate} className="text-xs text-xp hover:underline">
               別の献立にする
             </button>
           }
         >
-          献立
-        </SectionTitle>
+          こんだて
+        </GroupTitle>
 
         <div className="space-y-3">
           {meals.map((meal) => (
@@ -146,11 +155,15 @@ export default function MealsPage() {
         </div>
       </div>
 
+      <div className="mt-4">
+        <ExtraFoods date={today} extras={stored?.extras ?? []} target={target} />
+      </div>
+
       {shoppingList.length > 0 && (
         <div className="mt-4">
           <Card>
             <SectionTitle right={<span className="text-xs text-fg-dim">{shoppingList.length}品</span>}>
-              買い物リスト
+              かいものリスト
             </SectionTitle>
             <p className="mb-2 text-xs text-fg-dim">
               在庫から足りないぶんです（調味料は常備前提として省いています）。
@@ -175,7 +188,7 @@ export default function MealsPage() {
       {advice.length > 0 && (
         <div className="mt-4">
           <Card>
-            <SectionTitle>今日のアドバイス</SectionTitle>
+            <SectionTitle>きょうの おつげ</SectionTitle>
             <ul className="space-y-2">
               {advice.slice(0, 4).map((item, i) => (
                 <li key={i} className="flex gap-2 text-sm">
@@ -221,6 +234,144 @@ function MacroCell({
         <Bar ratio={value > 0 ? current / value : 0} color={color} height={4} />
       </div>
     </div>
+  );
+}
+
+/**
+ * 献立に無いのに食べたものを記録する。
+ * 提案どおりに食べる日ばかりではないので、これが無いと摂取量が常に実態とずれる。
+ */
+function ExtraFoods({
+  date,
+  extras,
+  target,
+}: {
+  date: string;
+  extras: ExtraFood[];
+  target: Macros;
+}) {
+  const [open, setOpen] = useState(false);
+  const [foodId, setFoodId] = useState<string | null>(null);
+  const [grams, setGrams] = useState("100");
+  const [slot, setSlot] = useState<MealSlot>("snack");
+
+  const food = foodId ? FOOD_BY_ID.get(foodId) : undefined;
+
+  const total = extras.reduce((acc, e) => {
+    const f = FOOD_BY_ID.get(e.foodId);
+    return acc + (f ? macrosForGrams(f, e.grams).kcal : 0);
+  }, 0);
+
+  const add = () => {
+    const amount = Number(grams);
+    if (!foodId || !Number.isFinite(amount) || amount <= 0) return;
+    addExtraFood({ date, foodId, grams: amount, slot, target });
+    setFoodId(null);
+    setGrams("100");
+  };
+
+  return (
+    <Card>
+      <SectionTitle
+        right={
+          extras.length > 0 ? (
+            <span className="numeric text-xs text-fg-dim">+{Math.round(total)} kcal</span>
+          ) : undefined
+        }
+      >
+        ほかに たべたもの
+      </SectionTitle>
+
+      {extras.length === 0 && !open && (
+        <p className="mb-3 text-xs text-fg-dim">
+          献立以外に食べたものはここに足してください。摂取カロリーとPFCに反映されます。
+        </p>
+      )}
+
+      {extras.length > 0 && (
+        <ul className="mb-3 space-y-1.5">
+          {extras.map((extra) => {
+            const f = FOOD_BY_ID.get(extra.foodId);
+            if (!f) return null;
+            const m = macrosForGrams(f, extra.grams);
+            return (
+              <li key={extra.id} className="flex items-center justify-between gap-2 text-sm">
+                <span className="min-w-0 truncate">
+                  <span className="text-fg-dim">{MEAL_SLOT_LABEL[extra.slot]}</span> {f.name}
+                </span>
+                <span className="flex shrink-0 items-center gap-2">
+                  <span className="numeric text-xs text-fg-muted">
+                    {Math.round(extra.grams)}g・{Math.round(m.kcal)}kcal
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeExtraFood(date, extra.id)}
+                    aria-label={`${f.name} を削除`}
+                    className="rounded border border-border px-1.5 text-fg-dim hover:text-danger"
+                  >
+                    ×
+                  </button>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {open ? (
+        <div className="space-y-3 border-t border-border pt-3">
+          <Field label="食材">
+            <FoodSelect value={foodId} onChange={setFoodId} autoFocus />
+          </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field
+              label="分量 (g)"
+              hint={food?.gramsPerUnit ? `${food.unitLabel}1つ ≒ ${food.gramsPerUnit}g` : undefined}
+            >
+              <input
+                type="number"
+                inputMode="numeric"
+                value={grams}
+                onChange={(e) => setGrams(e.target.value)}
+                className="numeric"
+              />
+            </Field>
+            <Field label="区分">
+              <select value={slot} onChange={(e) => setSlot(e.target.value as MealSlot)}>
+                {(Object.keys(MEAL_SLOT_LABEL) as MealSlot[]).map((s) => (
+                  <option key={s} value={s}>
+                    {MEAL_SLOT_LABEL[s]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+
+          {food && (
+            <p className="numeric text-xs text-fg-dim">
+              {Math.round(macrosForGrams(food, Number(grams) || 0).kcal)} kcal ・ P
+              {Math.round(macrosForGrams(food, Number(grams) || 0).protein)} F
+              {Math.round(macrosForGrams(food, Number(grams) || 0).fat)} C
+              {Math.round(macrosForGrams(food, Number(grams) || 0).carb)}
+            </p>
+          )}
+
+          <div className="flex gap-2">
+            <Button onClick={add} disabled={!foodId} className="flex-1">
+              追加
+            </Button>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              閉じる
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button variant="ghost" className="w-full" onClick={() => setOpen(true)}>
+          食べたものを追加
+        </Button>
+      )}
+    </Card>
   );
 }
 

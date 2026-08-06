@@ -20,7 +20,7 @@ import {
 } from "@/components/ui";
 import { logWeight } from "@/lib/actions";
 import { formatJa, todayStr } from "@/lib/date";
-import { SPLIT_LABEL } from "@/lib/types";
+import { SPLIT_SHORT_LABEL } from "@/lib/types";
 import { useGame } from "@/lib/useGame";
 import type { GameState } from "@/lib/selectors";
 import type { WeightEntry } from "@/lib/types";
@@ -90,18 +90,21 @@ function TodayWorkout({ state }: { state: GameState }) {
   if (!plan) return null;
 
   const done = Boolean(state.session?.completedAt);
-  const isRest = plan.split === "rest";
+  // 除外指定で候補が無くなった日も、休養日と同じ見せ方にする
+  const isRest = plan.split === "rest" || plan.exercises.length === 0;
 
   return (
     <Card>
-      <SectionTitle right={<span className="text-xs text-fg-dim">{SPLIT_LABEL[plan.split]}</span>}>
-        今日のトレーニング
+      <SectionTitle right={<span className="text-xs text-fg-dim">{SPLIT_SHORT_LABEL[plan.split]}</span>}>
+        きょうの しゅぎょう
       </SectionTitle>
 
       {isRest ? (
         <div>
           <p className="text-sm text-fg-muted">
-            今日は休養日です。回復もトレーニングのうち。体重の記録だけ済ませておきましょう。
+            {plan.split === "rest"
+              ? "今日は休養日です。回復もトレーニングのうち。体重の記録だけ済ませておきましょう。"
+              : "今日の対象部位は除外中のため、メニューがありません。休養日として扱います。"}
           </p>
           <Link href="/workout">
             <Button variant="ghost" className="mt-3 w-full">
@@ -155,7 +158,7 @@ function TodayCalories({ state }: { state: GameState }) {
   return (
     <Card>
       <SectionTitle right={<Link href="/meals" className="text-xs text-xp">献立を見る</Link>}>
-        今日の食事
+        きょうの しょくじ
       </SectionTitle>
 
       <div className="flex items-baseline justify-between">
@@ -238,7 +241,7 @@ function WeightSection({ entries, today }: { entries: WeightEntry[]; today: stri
   return (
     <Card>
       <SectionTitle right={todayEntry ? <span className="text-xs text-ok">記録済み</span> : undefined}>
-        体重の記録
+        たいじゅうの きろく
       </SectionTitle>
 
       <div className="flex items-end gap-2">

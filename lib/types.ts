@@ -14,6 +14,40 @@ export const DateStr = z
 export type DateStr = z.infer<typeof DateStr>;
 
 // ---------------------------------------------------------------------------
+// 部位（プロフィールの除外指定とトレーニングの双方から参照するので先に置く）
+// ---------------------------------------------------------------------------
+
+export const MuscleGroup = z.enum([
+  "chest", // 胸
+  "back", // 背中
+  "shoulders", // 肩
+  "biceps", // 二頭
+  "triceps", // 三頭
+  "quads", // 大腿四頭
+  "hamstrings", // ハム
+  "glutes", // 臀部
+  "calves", // ふくらはぎ
+  "abs", // 腹
+  "cardio", // 有酸素
+]);
+export type MuscleGroup = z.infer<typeof MuscleGroup>;
+
+export const MUSCLE_LABEL: Record<MuscleGroup, string> = {
+  chest: "胸",
+  back: "背中",
+  shoulders: "肩",
+  biceps: "上腕二頭",
+  triceps: "上腕三頭",
+  quads: "大腿四頭",
+  hamstrings: "ハムストリング",
+  glutes: "臀部",
+  calves: "ふくらはぎ",
+  abs: "腹筋",
+  cardio: "有酸素",
+};
+
+
+// ---------------------------------------------------------------------------
 // プロフィール
 // ---------------------------------------------------------------------------
 
@@ -80,6 +114,11 @@ export const UserProfile = z.object({
   daysPerWeek: z.number().int().min(2).max(6),
   /** アレルギー・苦手な食材（FoodDef.id またはタグ） */
   dietaryNg: z.array(z.string()).default([]),
+  /**
+   * 鍛えたくない部位。怪我や痛みで避けたい箇所を想定している。
+   * ここに入れた部位が関与する種目はプランに一切出さない。
+   */
+  excludedMuscles: z.array(MuscleGroup).default([]),
   /** 開始日。分割ローテーションの基準になる。 */
   startedAt: DateStr,
 });
@@ -101,34 +140,6 @@ export type WeightEntry = z.infer<typeof WeightEntry>;
 // トレーニング
 // ---------------------------------------------------------------------------
 
-export const MuscleGroup = z.enum([
-  "chest", // 胸
-  "back", // 背中
-  "shoulders", // 肩
-  "biceps", // 二頭
-  "triceps", // 三頭
-  "quads", // 大腿四頭
-  "hamstrings", // ハム
-  "glutes", // 臀部
-  "calves", // ふくらはぎ
-  "abs", // 腹
-  "cardio", // 有酸素
-]);
-export type MuscleGroup = z.infer<typeof MuscleGroup>;
-
-export const MUSCLE_LABEL: Record<MuscleGroup, string> = {
-  chest: "胸",
-  back: "背中",
-  shoulders: "肩",
-  biceps: "上腕二頭",
-  triceps: "上腕三頭",
-  quads: "大腿四頭",
-  hamstrings: "ハムストリング",
-  glutes: "臀部",
-  calves: "ふくらはぎ",
-  abs: "腹筋",
-  cardio: "有酸素",
-};
 
 /** 種目マスタ（コード内の定数。ユーザーデータではない） */
 export interface ExerciseDef {
@@ -182,6 +193,18 @@ export const SPLIT_LABEL: Record<SplitKey, string> = {
   upper: "上半身",
   lower: "下半身",
   rest: "休養日",
+};
+
+/** 画面の狭いところ用の短い分割名（SPLIT_LABEL は説明込みで長い） */
+export const SPLIT_SHORT_LABEL: Record<SplitKey, string> = {
+  fullA: "全身A",
+  fullB: "全身B",
+  push: "プッシュ",
+  pull: "プル",
+  legs: "レッグ",
+  upper: "上半身",
+  lower: "下半身",
+  rest: "休養",
 };
 
 export const SetLog = z.object({
@@ -306,12 +329,30 @@ export const Macros = z.object({
 });
 export type Macros = z.infer<typeof Macros>;
 
+/**
+ * 献立に無いのに食べたもの。
+ * 提案どおりに食べる日ばかりではないので、これが無いと摂取量が常に実態とずれる。
+ */
+export const ExtraFood = z.object({
+  id: z.string(),
+  foodId: z.string(),
+  grams: z.number().min(0).max(5000),
+  slot: MealSlot,
+});
+export type ExtraFood = z.infer<typeof ExtraFood>;
+
 export const MealPlan = z.object({
   date: DateStr,
   target: Macros,
   meals: z.array(PlannedMeal),
   /** 実際に食べたスロット。カロリー目標達成 XP の判定に使う。 */
   eaten: z.array(MealSlot).default([]),
+  /**
+   * 献立以外に食べたもの。
+   * default があるので、このフィールドを持たない既存の保存データも
+   * そのまま読み込める（SCHEMA_VERSION を上げる必要がない）。
+   */
+  extras: z.array(ExtraFood).default([]),
 });
 export type MealPlan = z.infer<typeof MealPlan>;
 

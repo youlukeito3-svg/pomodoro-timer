@@ -30,6 +30,7 @@ const profile: UserProfile = {
   equipment: ["bodyweight", "dumbbell", "barbell"],
   daysPerWeek: 3,
   dietaryNg: [],
+  excludedMuscles: [],
   startedAt: "2026-08-03",
 };
 

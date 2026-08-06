@@ -145,8 +145,11 @@ export function cleanProductName(line: string): string {
 // あいまい照合
 // ---------------------------------------------------------------------------
 
-/** 比較用の正規形（ひらがな・記号なし） */
-function toComparable(input: string): string {
+/**
+ * 比較用の正規形（ひらがな・記号なし）。
+ * レシート照合と食材サジェストの双方から使う。
+ */
+export function toComparable(input: string): string {
   return toHiragana(toFullWidthKana(input))
     .toLowerCase()
     .replace(/[\s　]/g, "")
