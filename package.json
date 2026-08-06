@@ -9,8 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prebuild": "node scripts/copy-tesseract-assets.mjs",
-    "predev": "node scripts/copy-tesseract-assets.mjs",
+    "prebuild": "node scripts/copy-tesseract-assets.mjs && node scripts/fetch-fonts.mjs",
+    "predev": "node scripts/copy-tesseract-assets.mjs && node scripts/fetch-fonts.mjs",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {

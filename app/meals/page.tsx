@@ -8,6 +8,7 @@ import {
   Card,
   Empty,
   Field,
+  GroupTitle,
   Loading,
   Page,
   PageHeader,
@@ -104,7 +105,7 @@ export default function MealsPage() {
       <PageHeader title="今日の食事" subtitle={formatJa(today)} />
 
       <Card>
-        <SectionTitle>目標</SectionTitle>
+        <SectionTitle>もくひょう</SectionTitle>
         <div className="flex items-baseline justify-between">
           <span className="numeric text-3xl font-bold text-gold">
             {target.kcal.toLocaleString("ja-JP")}
@@ -132,15 +133,15 @@ export default function MealsPage() {
       </Card>
 
       <div className="mt-4">
-        <SectionTitle
+        <GroupTitle
           right={
             <button onClick={regenerate} className="text-xs text-xp hover:underline">
               別の献立にする
             </button>
           }
         >
-          献立
-        </SectionTitle>
+          こんだて
+        </GroupTitle>
 
         <div className="space-y-3">
           {meals.map((meal) => (
@@ -162,7 +163,7 @@ export default function MealsPage() {
         <div className="mt-4">
           <Card>
             <SectionTitle right={<span className="text-xs text-fg-dim">{shoppingList.length}品</span>}>
-              買い物リスト
+              かいものリスト
             </SectionTitle>
             <p className="mb-2 text-xs text-fg-dim">
               在庫から足りないぶんです（調味料は常備前提として省いています）。
@@ -187,7 +188,7 @@ export default function MealsPage() {
       {advice.length > 0 && (
         <div className="mt-4">
           <Card>
-            <SectionTitle>今日のアドバイス</SectionTitle>
+            <SectionTitle>きょうの おつげ</SectionTitle>
             <ul className="space-y-2">
               {advice.slice(0, 4).map((item, i) => (
                 <li key={i} className="flex gap-2 text-sm">
@@ -278,7 +279,7 @@ function ExtraFoods({
           ) : undefined
         }
       >
-        ほかに食べたもの
+        ほかに たべたもの
       </SectionTitle>
 
       {extras.length === 0 && !open && (

@@ -19,7 +19,7 @@ export default function LevelPanel({ state, compact = false }: { state: GameStat
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xs text-fg-muted">Lv.</span>
-            <span className="numeric text-4xl font-bold text-gold">{progress.level}</span>
+            <span className="numeric text-[2.6rem] leading-none text-gold">{progress.level}</span>
             <span className="numeric text-sm text-fg-dim">/ {MAX_LEVEL}</span>
           </div>
         </div>
@@ -32,7 +32,7 @@ export default function LevelPanel({ state, compact = false }: { state: GameStat
       </div>
 
       <div className="mt-3">
-        <Bar ratio={progress.ratio} color="var(--color-xp)" height={10} />
+        <Bar ratio={progress.ratio} color="var(--color-xp)" height={11} segments={10} />
         <div className="mt-1 flex justify-between text-[11px] text-fg-dim">
           <span className="numeric">
             {Math.round(progress.xpIntoLevel).toLocaleString("ja-JP")} /{" "}
@@ -47,15 +47,15 @@ export default function LevelPanel({ state, compact = false }: { state: GameStat
       {!compact && (
         <div className="mt-4 border-t border-border pt-3">
           <div className="flex justify-between text-xs text-fg-muted">
-            <span>Lv.{MAX_LEVEL} への道のり</span>
+            <span>Lv.{MAX_LEVEL} への みちのり</span>
             <span className="numeric">{(progress.overallRatio * 100).toFixed(2)}%</span>
           </div>
           <div className="mt-1.5">
-            <Bar ratio={progress.overallRatio} color="var(--color-gold)" height={6} />
+            <Bar ratio={progress.overallRatio} color="var(--color-gold)" height={7} segments={20} />
           </div>
           {next && (
             <p className="mt-2 text-[11px] text-fg-dim">
-              あと {next.levelsLeft.toLocaleString("ja-JP")} レベルで「{next.band.name}」に昇格
+              あと {next.levelsLeft.toLocaleString("ja-JP")} レベルで「{next.band.name}」に しょうかく
             </p>
           )}
         </div>

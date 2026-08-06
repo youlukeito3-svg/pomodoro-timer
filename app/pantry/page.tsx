@@ -201,7 +201,7 @@ function ManualAdd() {
 
   return (
     <Card>
-      <SectionTitle>手入力で追加</SectionTitle>
+      <SectionTitle>てにゅうりょくで ついか</SectionTitle>
       <div className="space-y-3">
         <Field label="食材">
           <FoodSelect value={foodId} onChange={setFoodId} />

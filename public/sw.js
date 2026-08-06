@@ -12,7 +12,14 @@
 const CACHE = "kintore-rpg-v1";
 
 // 内容がURLで一意に決まるもの。取得できたら永続的に使い回してよい。
-const IMMUTABLE = [/\/_next\/static\//, /\/tesseract\//, /\/icons\//];
+// フォントは woff2 のみ（ファイル名がURLのハッシュ）。参照元の fonts.css は
+// 名前が変わらないので、こちらはネットワーク優先のままにして更新を拾えるようにする。
+const IMMUTABLE = [
+  /\/_next\/static\//,
+  /\/tesseract\//,
+  /\/icons\//,
+  /\/fonts\/.*\.woff2$/,
+];
 
 self.addEventListener("install", (event) => {
   // 新しい版をすぐ有効にする

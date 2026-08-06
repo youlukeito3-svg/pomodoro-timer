@@ -195,6 +195,18 @@ export const SPLIT_LABEL: Record<SplitKey, string> = {
   rest: "休養日",
 };
 
+/** 画面の狭いところ用の短い分割名（SPLIT_LABEL は説明込みで長い） */
+export const SPLIT_SHORT_LABEL: Record<SplitKey, string> = {
+  fullA: "全身A",
+  fullB: "全身B",
+  push: "プッシュ",
+  pull: "プル",
+  legs: "レッグ",
+  upper: "上半身",
+  lower: "下半身",
+  rest: "休養",
+};
+
 export const SetLog = z.object({
   exerciseId: z.string(),
   setIndex: z.number().int().min(0),

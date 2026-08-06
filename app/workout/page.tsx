@@ -292,7 +292,7 @@ function XpResult({ breakdown }: { breakdown: WorkoutXpBreakdown }) {
 
   return (
     <Card className="mt-5 border-gold/40">
-      <SectionTitle>獲得XP</SectionTitle>
+      <SectionTitle>かくとく けいけん</SectionTitle>
       <ul className="space-y-1 text-sm">
         {rows.map((row) => (
           <li key={row.label} className="flex justify-between">

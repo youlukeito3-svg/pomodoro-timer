@@ -56,7 +56,7 @@ export default function StatusPage() {
 
       <div className="mt-4">
         <Card>
-          <SectionTitle>能力値</SectionTitle>
+          <SectionTitle>のうりょく</SectionTitle>
           <StatRadar stats={state.stats} />
 
           <div className="mt-4 space-y-3">
@@ -89,7 +89,7 @@ export default function StatusPage() {
 
       <div className="mt-4">
         <Card>
-          <SectionTitle>クラス</SectionTitle>
+          <SectionTitle>しょうにん</SectionTitle>
           <ul className="space-y-1.5">
             {CLASS_BANDS.map((band) => {
               const reached = state.level >= band.from;
@@ -122,7 +122,7 @@ export default function StatusPage() {
               </span>
             }
           >
-            称号
+            しょうごう
           </SectionTitle>
           <ul className="space-y-1.5">
             {TITLES.map((title) => {
@@ -144,7 +144,7 @@ export default function StatusPage() {
 
       <div className="mt-4">
         <Card>
-          <SectionTitle>これまでの積み上げ</SectionTitle>
+          <SectionTitle>これまでの あゆみ</SectionTitle>
           <dl className="grid grid-cols-2 gap-3 text-sm">
             <Row label="トレーニング回数" value={`${state.titleContext.sessionCount} 回`} />
             <Row label="経験した種目" value={`${state.titleContext.uniqueExerciseCount} 種`} />
@@ -187,7 +187,7 @@ function RecentXp({ events }: { events: ReturnType<typeof useGame>["data"]["xpEv
 
   return (
     <Card>
-      <SectionTitle>最近の獲得XP</SectionTitle>
+      <SectionTitle>さいきんの けいけん</SectionTitle>
       <ul className="space-y-1.5 text-sm">
         {recent.map((event) => (
           <li key={event.id} className="flex items-center justify-between gap-2">

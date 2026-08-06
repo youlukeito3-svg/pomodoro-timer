@@ -26,6 +26,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ja" className="h-full">
       <body className="min-h-full flex flex-col bg-bg text-fg">
+        {/*
+          ドットフォントは scripts/fetch-fonts.mjs が public/fonts/ に置く。
+          バンドラを通さないので link で読む。React が head へ巻き上げるので
+          body 内に書く（html 直下に置くとハイドレーションが壊れる）。
+          取得できなかった場合は空のCSSになり、globals.css のフォールバックで
+          システムのゴシックが使われる。
+        */}
+        <link rel="stylesheet" href={asset("/fonts/fonts.css")} />
         {/* ボトムナビの高さぶん下に余白を取る */}
         <main className="flex-1 pb-28">{children}</main>
         <BottomNav />

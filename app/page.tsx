@@ -20,7 +20,7 @@ import {
 } from "@/components/ui";
 import { logWeight } from "@/lib/actions";
 import { formatJa, todayStr } from "@/lib/date";
-import { SPLIT_LABEL } from "@/lib/types";
+import { SPLIT_SHORT_LABEL } from "@/lib/types";
 import { useGame } from "@/lib/useGame";
 import type { GameState } from "@/lib/selectors";
 import type { WeightEntry } from "@/lib/types";
@@ -95,8 +95,8 @@ function TodayWorkout({ state }: { state: GameState }) {
 
   return (
     <Card>
-      <SectionTitle right={<span className="text-xs text-fg-dim">{SPLIT_LABEL[plan.split]}</span>}>
-        今日のトレーニング
+      <SectionTitle right={<span className="text-xs text-fg-dim">{SPLIT_SHORT_LABEL[plan.split]}</span>}>
+        きょうの しゅぎょう
       </SectionTitle>
 
       {isRest ? (
@@ -158,7 +158,7 @@ function TodayCalories({ state }: { state: GameState }) {
   return (
     <Card>
       <SectionTitle right={<Link href="/meals" className="text-xs text-xp">献立を見る</Link>}>
-        今日の食事
+        きょうの しょくじ
       </SectionTitle>
 
       <div className="flex items-baseline justify-between">
@@ -241,7 +241,7 @@ function WeightSection({ entries, today }: { entries: WeightEntry[]; today: stri
   return (
     <Card>
       <SectionTitle right={todayEntry ? <span className="text-xs text-ok">記録済み</span> : undefined}>
-        体重の記録
+        たいじゅうの きろく
       </SectionTitle>
 
       <div className="flex items-end gap-2">
