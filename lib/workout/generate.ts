@@ -79,7 +79,14 @@ const MIN_COMPOUND = 2;
 export function availableExercises(profile: UserProfile, level: number): ExerciseDef[] {
   const maxDifficulty = maxDifficultyForLevel(level);
   const owned = new Set(profile.equipment);
-  return EXERCISES.filter((e) => owned.has(e.equipment) && e.difficulty <= maxDifficulty);
+  const excluded = new Set(profile.excludedMuscles);
+
+  return EXERCISES.filter((e) => {
+    if (!owned.has(e.equipment) || e.difficulty > maxDifficulty) return false;
+    // 主働筋だけで判定すると、避けたい部位が別種目の関与筋として結局入ってしまう
+    // （肩を除外してもベンチプレスが残る）。関与する部位すべてを見る。
+    return !e.muscles.some((m) => excluded.has(m));
+  });
 }
 
 /** ある種目の直近の実施内容（完了セットのみ） */

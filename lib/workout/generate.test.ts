@@ -20,6 +20,7 @@ const profile: UserProfile = {
   equipment: ["bodyweight", "dumbbell", "barbell", "machine", "cable"],
   daysPerWeek: 3,
   dietaryNg: [],
+  excludedMuscles: [],
   startedAt: "2026-08-03",
 };
 
@@ -119,6 +120,70 @@ describe("器具フィルタ", () => {
       if (plan.split === "rest") continue;
       expect(plan.exercises.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("鍛えたくない部位の除外", () => {
+  it("除外した部位を主働筋とする種目が候補から消える", () => {
+    const noLegs: UserProfile = { ...profile, excludedMuscles: ["quads", "hamstrings", "glutes"] };
+    const pool = availableExercises(noLegs, 9999);
+    expect(pool.some((e) => e.id === "back_squat")).toBe(false);
+    expect(pool.some((e) => e.id === "leg_press")).toBe(false);
+  });
+
+  it("関与筋にすぎない場合でも除外される", () => {
+    // 主働筋だけで弾くと、肩を除外してもベンチプレス（関与筋に肩を含む）が
+    // 残ってしまい「避けたい部位を結局鍛える」ことになる
+    const noShoulders: UserProfile = { ...profile, excludedMuscles: ["shoulders"] };
+    const pool = availableExercises(noShoulders, 9999);
+    expect(EXERCISE_BY_ID.get("bench_press")!.muscles).toContain("shoulders");
+    expect(pool.some((e) => e.id === "bench_press")).toBe(false);
+    expect(pool.every((e) => !e.muscles.includes("shoulders"))).toBe(true);
+  });
+
+  it("生成されたプランに除外部位が一切出ない", () => {
+    const noBack: UserProfile = { ...profile, excludedMuscles: ["back"], daysPerWeek: 6 };
+    for (let i = 0; i < 14; i++) {
+      const date = `2026-08-${String(3 + i).padStart(2, "0")}`;
+      const plan = generatePlan({
+        profile: noBack, date, level: 9999, sessions: [], bodyWeightKg: 70,
+      });
+      for (const planned of plan.exercises) {
+        expect(EXERCISE_BY_ID.get(planned.exerciseId)!.muscles, planned.exerciseId)
+          .not.toContain("back");
+      }
+    }
+  });
+
+  it("その日の対象部位を全部除外していれば空のプランになる", () => {
+    // 8/7 はレッグの日。脚まわりを全部外せば候補が無くなる。
+    const noLegs: UserProfile = {
+      ...profile,
+      excludedMuscles: ["quads", "hamstrings", "glutes", "calves"],
+    };
+    const plan = generatePlan({
+      profile: noLegs, date: "2026-08-07", level: 9999, sessions: [], bodyWeightKg: 70,
+    });
+    expect(plan.split).toBe("legs");
+    expect(plan.exercises).toHaveLength(0);
+  });
+
+  it("全部位を除外しても例外にならない", () => {
+    const nothing: UserProfile = {
+      ...profile,
+      excludedMuscles: [
+        "chest", "back", "shoulders", "biceps", "triceps",
+        "quads", "hamstrings", "glutes", "calves", "abs", "cardio",
+      ],
+    };
+    expect(availableExercises(nothing, 9999)).toHaveLength(0);
+    expect(() =>
+      generatePlan({ profile: nothing, date: "2026-08-03", level: 9999, sessions: [], bodyWeightKg: 70 }),
+    ).not.toThrow();
+  });
+
+  it("除外していなければ従来どおり組める", () => {
+    expect(availableExercises(profile, 9999).length).toBeGreaterThan(60);
   });
 });
 

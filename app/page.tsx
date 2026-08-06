@@ -90,7 +90,8 @@ function TodayWorkout({ state }: { state: GameState }) {
   if (!plan) return null;
 
   const done = Boolean(state.session?.completedAt);
-  const isRest = plan.split === "rest";
+  // 除外指定で候補が無くなった日も、休養日と同じ見せ方にする
+  const isRest = plan.split === "rest" || plan.exercises.length === 0;
 
   return (
     <Card>
@@ -101,7 +102,9 @@ function TodayWorkout({ state }: { state: GameState }) {
       {isRest ? (
         <div>
           <p className="text-sm text-fg-muted">
-            今日は休養日です。回復もトレーニングのうち。体重の記録だけ済ませておきましょう。
+            {plan.split === "rest"
+              ? "今日は休養日です。回復もトレーニングのうち。体重の記録だけ済ませておきましょう。"
+              : "今日の対象部位は除外中のため、メニューがありません。休養日として扱います。"}
           </p>
           <Link href="/workout">
             <Button variant="ghost" className="mt-3 w-full">

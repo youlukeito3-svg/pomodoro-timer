@@ -5,6 +5,7 @@ import { generatePlan, type WorkoutPlan } from "@/lib/workout/generate";
 import { calcCalorieTarget, type CalorieTarget } from "@/lib/nutrition/bmr";
 import { generateMealPlan, type MealPlanResult } from "@/lib/nutrition/plan";
 import { RECIPE_BY_ID, cachedRecipeMacros } from "@/lib/nutrition/recipes";
+import { FOOD_BY_ID, macrosForGrams } from "@/lib/nutrition/foods";
 import {
   activeDatesFrom,
   computeStreak,
@@ -212,20 +213,20 @@ export function selectGameState(data: AppData, today: DateStr = todayStr()): Gam
   };
 }
 
-/** その日に「食べた」と記録した分の栄養 */
+/**
+ * その日に実際に食べた分の栄養。
+ * 「食べた」に印を付けた献立と、献立以外に食べたもの（extras）の合計。
+ */
 export function consumedMacros(data: AppData, date: DateStr): Macros {
   const stored = data.mealPlans.find((p) => p.date === date);
   if (!stored) return { kcal: 0, protein: 0, fat: 0, carb: 0 };
 
-  // 保存済みの献立から、食べたスロットの分だけ合計する
-  const eaten = new Set(stored.eaten);
-  const meals = stored.meals.filter((m) => eaten.has(m.slot));
-  return mealsMacrosOf(meals);
-}
-
-function mealsMacrosOf(meals: { recipeId: string; servings: number }[]): Macros {
   let kcal = 0, protein = 0, fat = 0, carb = 0;
-  for (const meal of meals) {
+
+  // 保存済みの献立から、食べたスロットの分
+  const eaten = new Set(stored.eaten);
+  for (const meal of stored.meals) {
+    if (!eaten.has(meal.slot)) continue;
     const recipe = RECIPE_BY_ID.get(meal.recipeId);
     if (!recipe) continue;
     const m = cachedRecipeMacros(recipe);
@@ -234,6 +235,18 @@ function mealsMacrosOf(meals: { recipeId: string; servings: number }[]): Macros 
     fat += m.fat * meal.servings;
     carb += m.carb * meal.servings;
   }
+
+  // 献立以外に食べた分
+  for (const extra of stored.extras) {
+    const food = FOOD_BY_ID.get(extra.foodId);
+    if (!food) continue;
+    const m = macrosForGrams(food, extra.grams);
+    kcal += m.kcal;
+    protein += m.protein;
+    fat += m.fat;
+    carb += m.carb;
+  }
+
   return {
     kcal: Math.round(kcal),
     protein: Math.round(protein),

@@ -7,7 +7,7 @@ import { Button, Card, Empty, Loading, Page, PageHeader, SectionTitle } from "@/
 import { addSet, completeWorkout, ensureSession, updateSet } from "@/lib/actions";
 import { formatJa, todayStr } from "@/lib/date";
 import type { WorkoutXpBreakdown } from "@/lib/rpg/xp";
-import { SPLIT_LABEL, type SetLog } from "@/lib/types";
+import { MUSCLE_LABEL, SPLIT_LABEL, type SetLog } from "@/lib/types";
 import { useGame } from "@/lib/useGame";
 import { EXERCISE_BY_ID, repUnitLabel } from "@/lib/workout/exercises";
 import { generatePlan } from "@/lib/workout/generate";
@@ -72,6 +72,34 @@ export default function WorkoutPage() {
           <Button variant="ghost" className="mt-4 w-full" onClick={() => setExtraMenu(true)}>
             それでも軽く動かす（全身メニュー）
           </Button>
+        </Card>
+      </Page>
+    );
+  }
+
+  // 対象部位をすべて除外していると候補が無くなる。
+  // 何も起きない画面にならないよう、理由と次の一手を出す。
+  if (plan.exercises.length === 0) {
+    const excluded = data.profile?.excludedMuscles ?? [];
+    return (
+      <Page>
+        <PageHeader title={SPLIT_LABEL[plan.split]} subtitle={formatJa(today)} />
+        <Card>
+          <p className="text-sm text-fg-muted">
+            今日の対象部位（{SPLIT_LABEL[plan.split]}）は
+            {excluded.length > 0 ? "すべて「鍛えたくない部位」に入っている" : "使える器具では組めない"}
+            ため、メニューがありません。今日は休養日として扱います。
+          </p>
+          {excluded.length > 0 && (
+            <p className="mt-2 text-xs text-fg-dim">
+              除外中: {excluded.map((m) => MUSCLE_LABEL[m]).join("・")}
+            </p>
+          )}
+          <Link href="/profile">
+            <Button variant="ghost" className="mt-4 w-full">
+              設定を見直す
+            </Button>
+          </Link>
         </Card>
       </Page>
     );
