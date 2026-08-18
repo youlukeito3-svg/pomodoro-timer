@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="旅行英語">
+<meta name="theme-color" content="#b0552f">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<title>旅行英語 12週間</title>
+<style>
+  :root{
+    --bg:#faf8f5; --surface:#fff; --ink:#232019; --ink-2:#6b6355; --line:#e6e0d6;
+    --accent:#b0552f; --accent-soft:#fdf0e8; --go:#2f6b62; --go-soft:#e9f2f0;
+    --warn:#8a6d1f; --warn-soft:#fdf6e3;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#16150f;--surface:#211f18;--ink:#efeae0;--ink-2:#a9a294;--line:#33302a;
+      --accent:#e58b5f;--accent-soft:#2c211a;--go:#6fbdb0;--go-soft:#1a2624;
+      --warn:#d6b95f;--warn-soft:#2a2417;}
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.7;
+    font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+    padding-bottom:env(safe-area-inset-bottom)}
+  .screen{display:none;padding:22px 18px 40px;max-width:620px;margin:0 auto}
+  .screen.on{display:block}
+  h1{font-size:19px;margin:0 0 3px} h2{font-size:16px;margin:26px 0 8px}
+  .sub{color:var(--ink-2);font-size:13.5px;margin:0 0 20px}
+  button{font:inherit;cursor:pointer;border-radius:13px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink);padding:13px 18px;font-weight:700;font-size:15px}
+  button:disabled{opacity:.4}
+  .big{width:100%;padding:19px;font-size:17px;background:var(--accent);color:#fff;border-color:var(--accent)}
+  .big.go{background:var(--go);border-color:var(--go)}
+  .ghost{background:transparent;font-weight:400;font-size:14px}
+  .rowb{display:flex;gap:9px;margin-top:10px}.rowb button{flex:1}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .back{padding:7px 12px;font-size:13px;border-radius:10px}
+  .ttl{font-size:14px;font-weight:700;color:var(--ink-2)}
+  /* home */
+  .hero{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:8px}
+  .hero .wk{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+  .hero .th{font-size:22px;font-weight:700;margin:4px 0 6px;letter-spacing:-.01em}
+  .hero .gl{font-size:13.5px;color:var(--ink-2)}
+  .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:14px 0 6px}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+  .barl{font-size:11.5px;color:var(--ink-2);display:flex;justify-content:space-between}
+  .cards{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .bk{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);
+    border-radius:14px;padding:15px 17px;width:100%;text-align:left;font-weight:400}
+  .bk .n{flex:0 0 34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+  .bk.done .n{background:var(--go-soft);color:var(--go)}
+  .bk .t{flex:1;min-width:0}
+  .bk .t b{display:block;font-size:15.5px}
+  .bk .t span{font-size:12.5px;color:var(--ink-2)}
+  .bk .r{font-size:12px;color:var(--ink-2);white-space:nowrap}
+  .bk.done .r{color:var(--go);font-weight:700}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;
+    background:var(--accent-soft);color:var(--accent);margin-left:6px}
+  /* srs */
+  .cnt{font-size:12.5px;color:var(--ink-2);letter-spacing:.06em;font-weight:700;text-align:center}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    padding:30px 22px;margin:14px 0;min-height:220px;display:flex;flex-direction:column;justify-content:center}
+  .tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink-2);text-align:center;margin-bottom:12px}
+  .jp{font-size:21px;font-weight:600;text-align:center;line-height:1.55}
+  .ans{font-size:24px;font-weight:600;text-align:center;line-height:1.45;margin-top:16px;
+    padding-top:16px;border-top:1px solid var(--line)}
+  .memo{font-size:12.5px;color:var(--ink-2);text-align:center;margin-top:10px;line-height:1.6}
+  .newtag{display:block;text-align:center;font-size:11px;font-weight:700;color:var(--go);letter-spacing:.1em;margin-bottom:8px}
+  .g3{display:flex;flex-direction:column;gap:8px}
+  .g3 button{font-size:15px;padding:15px}
+  .g3 .a{border-color:var(--go);color:var(--go)}
+  .g3 .b{border-color:var(--warn);color:var(--warn)}
+  .g3 .c{border-color:var(--accent);color:var(--accent)}
+  /* shadow */
+  .cue{text-align:center;padding:12px 0 0}
+  .cue .what{font-size:14.5px;font-weight:700;color:var(--ink-2);letter-spacing:.04em}
+  .cue .what.now{color:var(--go)}
+  .dot{width:62px;height:62px;border-radius:50%;margin:14px auto;background:var(--accent-soft);
+    border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:800;color:var(--accent)}
+  .dot.go{background:var(--go-soft);border-color:var(--go);color:var(--go);animation:p 1s ease-in-out infinite}
+  @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+  .en{font-size:23px;font-weight:600;line-height:1.45;text-align:center;margin:10px 0 6px}
+  .ja{font-size:13.5px;color:var(--ink-2);text-align:center}
+  .who{text-align:center;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink-2)}
+  .hint{font-size:12.5px;color:var(--ink-2);text-align:center;margin:12px 0 18px;min-height:1.6em}
+  /* misc */
+  .note{background:var(--accent-soft);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:11px;padding:13px 16px;font-size:13.5px;margin:14px 0;line-height:1.75}
+  .note.go{background:var(--go-soft);border-left-color:var(--go)}
+  .note.w{background:var(--warn-soft);border-left-color:var(--warn)}
+  .note b{color:var(--ink)}
+  .q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:9px;font-size:14.5px}
+  .q b{color:var(--accent);margin-right:6px}
+  .q .aa{display:none;font-size:13.5px;color:var(--go);margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}
+  body.reveal .q .aa{display:block}
+  .sel{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+  .sel button{text-align:left;font-weight:400;font-size:14px;line-height:1.6;padding:13px 15px}
+  .sel button[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);font-weight:700}
+  textarea{width:100%;min-height:120px;font:inherit;font-size:12.5px;padding:12px;border-radius:11px;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    font-family:ui-monospace,Menlo,monospace;resize:vertical;line-height:1.6}
+  select{width:100%;font:inherit;font-size:15px;padding:12px;border-radius:12px;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+  label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-2);margin:16px 0 6px;letter-spacing:.04em}
+  .seg{display:flex;gap:7px}.seg button{flex:1;padding:11px 4px;font-size:13.5px}
+  .seg button[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .list{font-size:13.5px;color:var(--ink-2)}
+  .list div{padding:7px 0;border-bottom:1px solid var(--line)}
+  .list div:last-child{border:0}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<div class="screen on" id="home">
+  <div class="hero">
+    <div class="wk" id="hwk">第1週 / DAY 1</div>
+    <div class="th" id="hth">あいさつ・聞き返し</div>
+    <div class="gl" id="hgl"></div>
+    <div class="bar"><i id="hbar"></i></div>
+    <div class="barl"><span id="hdays"></span><span id="hcards"></span></div>
+  </div>
+
+  <div class="note go" id="htip" style="display:none"></div>
+
+  <div class="cards">
+    <button class="bk" id="bA"><div class="n">A</div><div class="t"><b>フレーズ復習</b><span id="sA"></span></div><div class="r" id="rA">10分</div></button>
+    <button class="bk" id="bB"><div class="n">B</div><div class="t"><b>シャドーイング</b><span>音を追いかけて口を慣らす</span></div><div class="r" id="rB">15分</div></button>
+    <button class="bk" id="bC"><div class="n">C</div><div class="t"><b>ロールプレイ</b><span>Claudeと会話練習</span></div><div class="r" id="rC">20分</div></button>
+    <button class="bk" id="bD"><div class="n">D</div><div class="t"><b>リスニング</b><span>聞いて内容を答える</span></div><div class="r" id="rD">15分</div></button>
+  </div>
+
+  <div class="rowb" style="margin-top:18px">
+    <button class="ghost" id="toRep">今日の記録をClaudeに</button>
+    <button class="ghost" id="toSet">設定</button>
+  </div>
+  <div class="rowb">
+    <button class="ghost" id="finDay">今日はここまで（翌日へ）</button>
+  </div>
+</div>
+
+<!-- ============ A: SRS ============ -->
+<div class="screen" id="srs">
+  <div class="top"><button class="back" data-home>← 戻る</button><div class="ttl">A. フレーズ復習</div></div>
+  <div class="cnt" id="scnt"></div>
+  <div class="card" id="scard"></div>
+  <div id="sctl"></div>
+</div>
+
+<!-- ============ B: SHADOW ============ -->
+<div class="screen" id="sh">
+  <div class="top"><button class="back" data-home>← 戻る</button><div class="ttl">B. シャドーイング</div></div>
+  <div class="cnt" id="hcnt"></div>
+  <div class="bar"><i id="hpbar"></i></div>
+  <div class="cue"><div class="what" id="what"></div><div class="dot" id="dot"></div></div>
+  <div class="who" id="hwho"></div><div class="en" id="hen"></div><div class="ja" id="hja"></div>
+  <div class="hint" id="hhint"></div>
+  <button class="big" id="hnext">▶ 再生する</button>
+  <div class="rowb"><button class="ghost" id="hagain">もう一度</button><button class="ghost" id="hskip">この行を飛ばす</button></div>
+  <div class="rowb"><button class="ghost" id="hstop">ここまでにする</button></div>
+</div>
+
+<!-- ============ C: ROLEPLAY ============ -->
+<div class="screen" id="rp">
+  <div class="top"><button class="back" data-home>← 戻る</button><div class="ttl">C. ロールプレイ</div></div>
+  <p class="sub">場面を選ぶと、Claudeに貼る文ができます。<b>まず声に出してから打つ</b>のを忘れずに。</p>
+  <div class="sel" id="rsel"></div>
+  <label>これをコピーして Claude に貼る</label>
+  <textarea id="rout" readonly></textarea>
+  <button class="big" id="rcopy" style="margin-top:10px">コピーする</button>
+  <details style="margin-top:18px"><summary style="cursor:pointer;font-size:13px;color:var(--ink-2);font-weight:700">今週の使えるフレーズを見る</summary>
+    <div class="list" id="rlist"></div></details>
+  <button class="big go" id="rdone" style="margin-top:18px">会話を終えた</button>
+</div>
+
+<!-- ============ D: LISTENING ============ -->
+<div class="screen" id="ls">
+  <div class="top"><button class="back" data-home>← 戻る</button><div class="ttl">D. リスニング</div></div>
+  <div class="note"><b>先に質問を読んでください。</b>そのあと再生します。文字は出ません。</div>
+  <div id="lq"></div>
+  <button class="big" id="lplay" style="margin-top:14px">▶ 再生する</button>
+  <div class="rowb"><button class="ghost" id="lslow">ゆっくり再生</button><button class="ghost" id="lrev">答えと英文を見る</button></div>
+  <div id="ltext" style="display:none">
+    <h2>英文</h2>
+    <div class="q" id="ltxt" style="line-height:1.9"></div>
+    <div class="note w"><b>聞き取れなかった箇所は、原因を分けてください。</b>①知らない単語だった ②音が繋がって分からなかった ③速すぎた。原因が違えば対策も違います。</div>
+    <button class="big go" id="ldone">終わった</button>
+  </div>
+</div>
+
+<!-- ============ REPORT ============ -->
+<div class="screen" id="rep">
+  <div class="top"><button class="back" data-home>← 戻る</button><div class="ttl">今日の記録</div></div>
+  <p class="sub">これをコピーして Claude に貼ると、弱点を見て次の指示をくれます。</p>
+  <textarea id="repout" readonly style="min-height:180px"></textarea>
+  <button class="big" id="repcopy" style="margin-top:10px">コピーする</button>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div class="screen" id="set">
+  <div class="top"><button class="back" data-home>← 戻る</button><div class="ttl">設定</div></div>
+  <label>声（英国英語を選んでください）</label>
+  <select id="voice"></select>
+  <div id="vnote" class="note w" style="display:none"></div>
+  <button id="vtest" style="width:100%;margin-top:10px">🔊 声を試す</button>
+
+  <label>速さ</label>
+  <div class="seg" id="spd">
+    <button data-r="0.65">ゆっくり</button><button data-r="0.8" aria-pressed="true">ふつう</button><button data-r="1">速め</button>
+  </div>
+
+  <label>進捗のバックアップ</label>
+  <p style="font-size:13px;color:var(--ink-2);margin:0 0 8px">端末に自動保存されますが、念のため書き出しておくと安心です。Google Driveに貼っておけば機種変更でも消えません。</p>
+  <textarea id="exp" style="min-height:90px"></textarea>
+  <div class="rowb"><button class="ghost" id="doexp">書き出す</button><button class="ghost" id="doimp">読み込む</button></div>
+
+  <label>日付の調整</label>
+  <div class="rowb"><button class="ghost" id="dprev">1日戻す</button><button class="ghost" id="dnext">1日進める</button></div>
+  <div class="rowb"><button class="ghost" id="reset" style="color:var(--accent)">最初からやり直す</button></div>
+</div>
+
+<script>
+const DATA = {"weeks":[{"n":1,"theme":"あいさつ・聞き返し","goal":"“How are you going?” に反射で返せる／聞き取れないときに自力で立て直せる","pat":"Sorry, could you 〜?"},{"n":2,"theme":"機内・空港","goal":"依頼の型を体に入れる","pat":"Could I have 〜? / Where is 〜?"},{"n":3,"theme":"入国審査・税関","goal":"滞在目的・期間・宿泊先を言い切る","pat":"I'm here for 〜 / I'll be staying 〜"},{"n":4,"theme":"ホテル","goal":"チェックインと部屋の不具合の申告","pat":"〜 isn't working / There's no 〜"},{"n":5,"theme":"カフェ","goal":"豪州式コーヒー注文を完遂する","pat":"Can I get 〜, please?"},{"n":6,"theme":"レストラン・パブ","goal":"注文・アレルギー確認・会計","pat":"I'll have 〜 / I'm allergic to 〜"},{"n":7,"theme":"買い物","goal":"サイズ・色・試着・免税","pat":"Do you have this in 〜?"},{"n":8,"theme":"交通","goal":"Opal/Myki、バス・電車・タクシー","pat":"Does this 〜 go to 〜?"},{"n":9,"theme":"道を聞く","goal":"相手の道案内を「聞き取る」側に回る","pat":"How do I get to 〜?"},{"n":10,"theme":"観光・アクティビティ","goal":"チケット購入・ツアー参加・写真の依頼","pat":"What time does it 〜?"},{"n":11,"theme":"トラブル対応","goal":"紛失・盗難・体調不良・乗り遅れ","pat":"I've lost 〜 / I need to 〜"},{"n":12,"theme":"雑談＋総仕上げ","goal":"全144フレーズの通し復習＋旅程シミュレーション","pat":"相づちと質問返し"}],"phrases":[{"id":0,"w":1,"sc":"あいさつ","en":"How are you going?","ja":"調子どう？／元気？","memo":"豪州の定番あいさつ。How are you? と同じ意味。Going well, thanks. と返す"},{"id":1,"w":1,"sc":"あいさつ","en":"Good, thanks. How about you?","ja":"元気です、ありがとう。あなたは？","memo":"万能の返し。まずこれを反射で言えるように"},{"id":2,"w":1,"sc":"あいさつ","en":"Hi, how's it going?","ja":"やあ、調子どう？","memo":"カジュアル。店員にも使われる"},{"id":3,"w":1,"sc":"あいさつ","en":"Not too bad, thanks.","ja":"まあまあです、ありがとう","memo":"豪州でよく使う控えめな返答"},{"id":4,"w":1,"sc":"あいさつ","en":"Nice to meet you. I'm Ariji.","ja":"はじめまして。アリジです","memo":"名前は I'm 〜 で十分"},{"id":5,"w":1,"sc":"あいさつ","en":"Have a good one!","ja":"じゃあ、良い一日を！","memo":"別れ際の定番。Cheers! でもOK"},{"id":6,"w":1,"sc":"あいさつ","en":"Cheers!","ja":"ありがとう／じゃあね","memo":"豪州では Thanks の意味でも使う"},{"id":7,"w":1,"sc":"あいさつ","en":"No worries.","ja":"気にしないで／どういたしまして","memo":"豪州の国民的フレーズ。お礼にも謝罪にも返せる"},{"id":8,"w":1,"sc":"あいさつ","en":"Thanks so much, I appreciate it.","ja":"本当にありがとうございます","memo":"Thank you より温かい響き"},{"id":9,"w":1,"sc":"雑談","en":"I'm from Japan. This is my first time here.","ja":"日本から来ました。ここは初めてです","memo":"会話の入り口。ほぼ毎日使う"},{"id":10,"w":1,"sc":"雑談","en":"I'm here on holiday for two weeks.","ja":"2週間の休暇で来ています","memo":"豪州では vacation より holiday"},{"id":11,"w":1,"sc":"雑談","en":"What do you recommend around here?","ja":"この辺のおすすめは何ですか？","memo":"店員・宿のスタッフに万能"},{"id":12,"w":1,"sc":"聞き返し","en":"Sorry, could you say that again?","ja":"すみません、もう一度言ってもらえますか？","memo":"最重要フレーズ。丸暗記推奨"},{"id":13,"w":1,"sc":"聞き返し","en":"Could you speak a little slower, please?","ja":"もう少しゆっくり話してもらえますか？","memo":"豪州英語が速いときに必須"},{"id":14,"w":1,"sc":"聞き返し","en":"Sorry, I didn't catch that.","ja":"すみません、聞き取れませんでした","memo":"自然でよく使われる"},{"id":15,"w":1,"sc":"聞き返し","en":"What does that mean?","ja":"それはどういう意味ですか？","memo":"スラングを聞いたときに"},{"id":16,"w":1,"sc":"聞き返し","en":"How do you spell that?","ja":"どう綴りますか？","memo":"地名・店名を聞き取れないときの逃げ道"},{"id":17,"w":1,"sc":"聞き返し","en":"Let me see...","ja":"えーっと…","memo":"沈黙を埋めるつなぎ表現"},{"id":18,"w":1,"sc":"聞き返し","en":"So you mean I should go this way?","ja":"つまり、こっちに行けばいいということですか？","memo":"理解の確認。誤解を防ぐ"},{"id":19,"w":1,"sc":"聞き返し","en":"Sorry, my English isn't great.","ja":"すみません、英語が得意ではなくて","memo":"言うと相手が必ずゆっくりにしてくれる"},{"id":20,"w":2,"sc":"機内","en":"Excuse me, I think that's my seat.","ja":"すみません、そこは私の席だと思います","memo":"席の重複トラブルで"},{"id":21,"w":2,"sc":"機内","en":"Could I have a glass of water, please?","ja":"お水を一杯いただけますか？","memo":"Could I have 〜 は最重要の型"},{"id":22,"w":2,"sc":"機内","en":"Chicken, please.","ja":"チキンをお願いします","memo":"機内食は一語＋please で通じる"},{"id":23,"w":2,"sc":"機内","en":"Could I get a blanket?","ja":"毛布をもらえますか？","memo":"Could I get 〜 も同じ型"},{"id":24,"w":2,"sc":"機内","en":"Excuse me, may I get past?","ja":"すみません、通してもらえますか？","memo":"窓側から出るとき"},{"id":25,"w":2,"sc":"機内","en":"Do you have a Japanese customs form?","ja":"日本の税関申告書はありますか？","memo":"帰国便で"},{"id":26,"w":2,"sc":"空港","en":"Where is the baggage claim?","ja":"手荷物受取所はどこですか？","memo":"Where is 〜? の型"},{"id":27,"w":2,"sc":"空港","en":"My luggage hasn't come out.","ja":"荷物が出てきません","memo":"ロストバゲージの第一声"},{"id":28,"w":2,"sc":"空港","en":"Where can I get a SIM card?","ja":"SIMカードはどこで買えますか？","memo":"到着後すぐ使う"},{"id":29,"w":2,"sc":"空港","en":"Is there free Wi-Fi here?","ja":"ここに無料Wi-Fiはありますか？","memo":"Is there 〜? の型"},{"id":30,"w":2,"sc":"空港","en":"Which gate is the flight to Cairns?","ja":"ケアンズ行きは何番ゲートですか？","memo":"国内線乗り継ぎで"},{"id":31,"w":2,"sc":"空港","en":"Where's the taxi rank?","ja":"タクシー乗り場はどこですか？","memo":"豪州では taxi stand より taxi rank"},{"id":32,"w":3,"sc":"入国審査","en":"I'm here for sightseeing.","ja":"観光で来ました","memo":"目的を聞かれたときの定番"},{"id":33,"w":3,"sc":"入国審査","en":"I'll be staying for ten days.","ja":"10日間滞在します","memo":"期間は数字＋days で"},{"id":34,"w":3,"sc":"入国審査","en":"I'm staying at a hotel in Sydney.","ja":"シドニーのホテルに泊まります","memo":"滞在先を聞かれたら"},{"id":35,"w":3,"sc":"入国審査","en":"Here's my booking confirmation.","ja":"こちらが予約確認書です","memo":"スマホ画面を見せながら"},{"id":36,"w":3,"sc":"入国審査","en":"I'm travelling alone.","ja":"一人で旅行しています","memo":"travelling は豪州綴り"},{"id":37,"w":3,"sc":"入国審査","en":"This is my return ticket.","ja":"これが復路のチケットです","memo":"帰りの便を確認されることがある"},{"id":38,"w":3,"sc":"税関","en":"I have some snacks in my bag.","ja":"カバンにお菓子が入っています","memo":"豪州は検疫が非常に厳格。正直に申告が鉄則"},{"id":39,"w":3,"sc":"税関","en":"Do I need to declare this?","ja":"これは申告が必要ですか？","memo":"迷ったら必ず聞く"},{"id":40,"w":3,"sc":"税関","en":"It's for personal use.","ja":"個人使用のためです","memo":"数量を疑われたとき"},{"id":41,"w":3,"sc":"税関","en":"I have medicine with a prescription.","ja":"処方薬を持っています","memo":"常備薬がある人は必須"},{"id":42,"w":3,"sc":"税関","en":"Nothing to declare.","ja":"申告するものはありません","memo":"申告不要レーンで"},{"id":43,"w":3,"sc":"税関","en":"I threw it away before the check.","ja":"検査の前に捨てました","memo":"果物などを持ち込みかけたとき"},{"id":44,"w":4,"sc":"ホテル","en":"I have a reservation under Ariji.","ja":"アリジの名前で予約しています","memo":"チェックインの第一声"},{"id":45,"w":4,"sc":"ホテル","en":"What time is check-out?","ja":"チェックアウトは何時ですか？","memo":"What time is 〜? の型"},{"id":46,"w":4,"sc":"ホテル","en":"Could I have a late check-out?","ja":"レイトチェックアウトはできますか？","memo":"丁寧な依頼"},{"id":47,"w":4,"sc":"ホテル","en":"Is breakfast included?","ja":"朝食は含まれていますか？","memo":"料金確認の必須表現"},{"id":48,"w":4,"sc":"ホテル","en":"Could you keep my luggage until three?","ja":"3時まで荷物を預かってもらえますか？","memo":"チェックアウト後に観光するとき"},{"id":49,"w":4,"sc":"ホテル","en":"The air conditioning isn't working.","ja":"エアコンが動きません","memo":"〜 isn't working はトラブル万能型"},{"id":50,"w":4,"sc":"ホテル","en":"There's no hot water in my room.","ja":"部屋にお湯が出ません","memo":"There's no 〜 の型"},{"id":51,"w":4,"sc":"ホテル","en":"Could I get some extra towels?","ja":"タオルを追加でもらえますか？","memo":"電話でもフロントでも"},{"id":52,"w":4,"sc":"ホテル","en":"What's the Wi-Fi password?","ja":"Wi-Fiのパスワードは何ですか？","memo":"チェックイン時に必ず聞く"},{"id":53,"w":4,"sc":"ホテル","en":"Could you call a taxi for me?","ja":"タクシーを呼んでもらえますか？","memo":"Could you 〜 for me? の型"},{"id":54,"w":4,"sc":"ホテル","en":"Is there a laundry here?","ja":"ここにコインランドリーはありますか？","memo":"長期滞在で"},{"id":55,"w":4,"sc":"ホテル","en":"How do I get to the city centre from here?","ja":"ここから市内中心部へはどう行きますか？","memo":"centre は豪州綴り"},{"id":56,"w":5,"sc":"カフェ","en":"Can I get a flat white, please?","ja":"フラットホワイトをお願いします","memo":"豪州発祥の定番コーヒー。エスプレッソ＋スチームミルク"},{"id":57,"w":5,"sc":"カフェ","en":"A long black, please.","ja":"ロングブラックをお願いします","memo":"アメリカンコーヒーに近い。お湯にエスプレッソを注ぐ"},{"id":58,"w":5,"sc":"カフェ","en":"What's a short black?","ja":"ショートブラックって何ですか？","memo":"エスプレッソ一杯のこと"},{"id":59,"w":5,"sc":"カフェ","en":"Just a cappuccino, thanks.","ja":"カプチーノだけお願いします","memo":"thanks を語尾に付けるのが豪州流"},{"id":60,"w":5,"sc":"カフェ","en":"Regular or large?","ja":"レギュラーとラージ、どちらですか？","memo":"店員のセリフ。聞き取れるように"},{"id":61,"w":5,"sc":"カフェ","en":"Takeaway, please.","ja":"持ち帰りでお願いします","memo":"豪州では to go ではなく takeaway"},{"id":62,"w":5,"sc":"カフェ","en":"For here, thanks.","ja":"ここで飲みます","memo":"店内利用。Have here でも通じる"},{"id":63,"w":5,"sc":"カフェ","en":"Could I have oat milk instead?","ja":"オーツミルクに変更できますか？","memo":"豪州のカフェは代替ミルクが充実"},{"id":64,"w":5,"sc":"カフェ","en":"Is this table free?","ja":"この席は空いていますか？","memo":"混んだカフェで"},{"id":65,"w":5,"sc":"カフェ","en":"Card, please.","ja":"カードで払います","memo":"豪州はほぼキャッシュレス"},{"id":66,"w":5,"sc":"カフェ","en":"Do you have any dairy-free options?","ja":"乳製品なしの選択肢はありますか？","memo":"アレルギー・体質対応"},{"id":67,"w":5,"sc":"カフェ","en":"That was really good, thanks.","ja":"すごく美味しかったです、ありがとう","memo":"去り際のひと言。印象が良い"},{"id":68,"w":6,"sc":"レストラン","en":"A table for two, please.","ja":"2名でお願いします","memo":"入店時の定番"},{"id":69,"w":6,"sc":"レストラン","en":"Do you have a table available?","ja":"空いている席はありますか？","memo":"予約なしのとき"},{"id":70,"w":6,"sc":"レストラン","en":"Could we see the menu, please?","ja":"メニューを見せてもらえますか？","memo":"we を使うと自然"},{"id":71,"w":6,"sc":"レストラン","en":"What's the most popular dish here?","ja":"ここで一番人気の料理は何ですか？","memo":"会話が広がる質問"},{"id":72,"w":6,"sc":"レストラン","en":"I'll have the barramundi.","ja":"バラマンディをいただきます","memo":"I'll have 〜 が注文の基本型。豪州名物の魚"},{"id":73,"w":6,"sc":"レストラン","en":"Does this contain nuts?","ja":"これにナッツは入っていますか？","memo":"アレルギー確認"},{"id":74,"w":6,"sc":"レストラン","en":"I'm allergic to shellfish.","ja":"甲殻類アレルギーがあります","memo":"安全に関わる最重要フレーズ"},{"id":75,"w":6,"sc":"レストラン","en":"Could I have it without onions?","ja":"玉ねぎ抜きにできますか？","memo":"苦手なものを外す"},{"id":76,"w":6,"sc":"レストラン","en":"Could we get some tap water?","ja":"お水をもらえますか？","memo":"豪州の水道水は基本安全で無料"},{"id":77,"w":6,"sc":"レストラン","en":"Order at the counter?","ja":"注文はカウンターですか？","memo":"豪州のパブは自分で注文しに行く方式が多い"},{"id":78,"w":6,"sc":"レストラン","en":"Could we get the bill, please?","ja":"お会計をお願いします","memo":"豪州では check より bill"},{"id":79,"w":6,"sc":"レストラン","en":"Can we split the bill?","ja":"割り勘にできますか？","memo":"友人と食事するとき"},{"id":80,"w":6,"sc":"レストラン","en":"It was delicious, thank you.","ja":"美味しかったです、ありがとう","memo":"去り際に"},{"id":81,"w":6,"sc":"レストラン","en":"Do you take card?","ja":"カードは使えますか？","memo":"小さな店で念のため"},{"id":82,"w":7,"sc":"買い物","en":"I'm just having a look, thanks.","ja":"見ているだけです、ありがとう","memo":"声をかけられたときの定番"},{"id":83,"w":7,"sc":"買い物","en":"How much is this?","ja":"これはいくらですか？","memo":"最頻出"},{"id":84,"w":7,"sc":"買い物","en":"Do you have this in a medium?","ja":"これのMサイズはありますか？","memo":"Do you have 〜 in 〜? の型"},{"id":85,"w":7,"sc":"買い物","en":"Can I try this on?","ja":"試着できますか？","memo":"試着室は fitting room"},{"id":86,"w":7,"sc":"買い物","en":"Where are the fitting rooms?","ja":"試着室はどこですか？","memo":""},{"id":87,"w":7,"sc":"買い物","en":"Do you have this in another colour?","ja":"別の色はありますか？","memo":"colour は豪州綴り"},{"id":88,"w":7,"sc":"買い物","en":"I'll take this one.","ja":"これにします","memo":"購入を決めたとき"},{"id":89,"w":7,"sc":"買い物","en":"Could I have a bag, please?","ja":"袋をもらえますか？","memo":"豪州はレジ袋が有料または廃止の州が多い"},{"id":90,"w":7,"sc":"買い物","en":"Can I get a tax refund for this?","ja":"これは免税の対象ですか？","memo":"TRS（Tourist Refund Scheme）を空港で使える"},{"id":91,"w":7,"sc":"買い物","en":"Could I have a receipt, please?","ja":"レシートをもらえますか？","memo":"免税申請にレシートが必須"},{"id":92,"w":8,"sc":"交通","en":"Where can I buy an Opal card?","ja":"Opalカードはどこで買えますか？","memo":"シドニーの交通カード。メルボルンは Myki"},{"id":93,"w":8,"sc":"交通","en":"Can I tap on with my credit card?","ja":"クレジットカードでタップできますか？","memo":"豪州の多くの都市でタッチ決済が使える"},{"id":94,"w":8,"sc":"交通","en":"Does this bus go to Bondi Beach?","ja":"このバスはボンダイビーチに行きますか？","memo":"Does this 〜 go to 〜? の型"},{"id":95,"w":8,"sc":"交通","en":"Which platform for the airport?","ja":"空港行きは何番ホームですか？","memo":"豪州では platform"},{"id":96,"w":8,"sc":"交通","en":"How long does it take?","ja":"どのくらい時間がかかりますか？","memo":"所要時間の質問"},{"id":97,"w":8,"sc":"交通","en":"Could you tell me when to get off?","ja":"降りる場所を教えてもらえますか？","memo":"運転手や乗客に"},{"id":98,"w":8,"sc":"交通","en":"I'd like to go to this address.","ja":"この住所まで行きたいです","memo":"スマホ画面を見せながら"},{"id":99,"w":8,"sc":"交通","en":"Could you stop here, please?","ja":"ここで止めてもらえますか？","memo":"タクシーで"},{"id":100,"w":8,"sc":"交通","en":"How much will it be, roughly?","ja":"だいたいいくらになりますか？","memo":"乗車前の確認"},{"id":101,"w":8,"sc":"交通","en":"Is this the right stop for the museum?","ja":"博物館へはここで降りて合っていますか？","memo":"不安なときの確認"},{"id":102,"w":9,"sc":"道案内","en":"Excuse me, how do I get to the station?","ja":"すみません、駅にはどう行けばいいですか？","memo":"How do I get to 〜? が最重要型"},{"id":103,"w":9,"sc":"道案内","en":"Is it far from here?","ja":"ここから遠いですか？","memo":""},{"id":104,"w":9,"sc":"道案内","en":"Can I walk there?","ja":"歩いて行けますか？","memo":""},{"id":105,"w":9,"sc":"道案内","en":"Which way is the harbour?","ja":"港はどちらの方向ですか？","memo":"harbour は豪州綴り"},{"id":106,"w":9,"sc":"道案内","en":"Am I going the right way?","ja":"この方向で合っていますか？","memo":"歩きながら確認"},{"id":107,"w":9,"sc":"道案内","en":"Could you show me on the map?","ja":"地図で示してもらえますか？","memo":"聞き取れなくても解決できる最強の逃げ道"},{"id":108,"w":9,"sc":"道案内","en":"Go straight and turn left at the lights.","ja":"まっすぐ行って信号を左です","memo":"相手の返答例。聞き取れるように"},{"id":109,"w":9,"sc":"道案内","en":"It's about a ten-minute walk.","ja":"歩いて10分くらいです","memo":"相手の返答例"},{"id":110,"w":10,"sc":"観光","en":"Two adults, please.","ja":"大人2枚お願いします","memo":"チケット購入の基本型"},{"id":111,"w":10,"sc":"観光","en":"What time does it close?","ja":"何時に閉まりますか？","memo":"What time does it 〜? の型"},{"id":112,"w":10,"sc":"観光","en":"Is there a discount for students?","ja":"学生割引はありますか？","memo":""},{"id":113,"w":10,"sc":"観光","en":"Do I need to book in advance?","ja":"事前予約は必要ですか？","memo":"人気ツアーで"},{"id":114,"w":10,"sc":"観光","en":"Where does the tour start?","ja":"ツアーはどこから出発しますか？","memo":""},{"id":115,"w":10,"sc":"観光","en":"Could you take a photo of us?","ja":"私たちの写真を撮ってもらえますか？","memo":"旅行で最も使う依頼のひとつ"},{"id":116,"w":10,"sc":"観光","en":"Is it okay to take photos here?","ja":"ここで写真を撮っても大丈夫ですか？","memo":"美術館などで"},{"id":117,"w":10,"sc":"観光","en":"What's the best time to see the sunset?","ja":"夕日を見るのに一番いい時間は？","memo":"会話が弾む質問"},{"id":118,"w":10,"sc":"観光","en":"Do we need to bring anything?","ja":"何か持って行くものはありますか？","memo":"ツアー参加前に"},{"id":119,"w":10,"sc":"観光","en":"Is swimming safe here?","ja":"ここで泳いでも安全ですか？","memo":"豪州のビーチは離岸流やクラゲに注意。旗の間で泳ぐ"},{"id":120,"w":11,"sc":"トラブル","en":"Could you help me, please?","ja":"助けてもらえますか？","memo":"最初のひと言"},{"id":121,"w":11,"sc":"トラブル","en":"I've lost my passport.","ja":"パスポートをなくしました","memo":"I've lost 〜 の型"},{"id":122,"w":11,"sc":"トラブル","en":"Someone took my bag.","ja":"カバンを盗られました","memo":""},{"id":123,"w":11,"sc":"トラブル","en":"Where's the nearest police station?","ja":"一番近い警察署はどこですか？","memo":""},{"id":124,"w":11,"sc":"トラブル","en":"I need to see a doctor.","ja":"医者に診てもらう必要があります","memo":""},{"id":125,"w":11,"sc":"トラブル","en":"I'm not feeling well.","ja":"体調が良くありません","memo":"病院・薬局で"},{"id":126,"w":11,"sc":"トラブル","en":"I have a headache and a fever.","ja":"頭痛と熱があります","memo":"症状は I have 〜 で並べる"},{"id":127,"w":11,"sc":"トラブル","en":"Do you have anything for a cold?","ja":"風邪薬はありますか？","memo":"薬局（chemist）で。豪州では pharmacy より chemist をよく使う"},{"id":128,"w":11,"sc":"トラブル","en":"I missed my flight. What should I do?","ja":"飛行機に乗り遅れました。どうすればいいですか？","memo":""},{"id":129,"w":11,"sc":"トラブル","en":"I think I was charged twice.","ja":"二重に請求された気がします","memo":"支払いトラブル"},{"id":130,"w":11,"sc":"トラブル","en":"Could you call the Japanese embassy?","ja":"日本大使館に電話してもらえますか？","memo":"最終手段"},{"id":131,"w":11,"sc":"トラブル","en":"Is there someone who speaks Japanese?","ja":"日本語を話せる人はいますか？","memo":"本当に困ったとき"},{"id":132,"w":12,"sc":"雑談","en":"What's your favourite place in Australia?","ja":"オーストラリアで一番好きな場所は？","memo":"相手に話してもらう質問"},{"id":133,"w":12,"sc":"雑談","en":"How long have you lived here?","ja":"ここに住んでどのくらいですか？","memo":""},{"id":134,"w":12,"sc":"雑談","en":"That sounds great!","ja":"それはいいですね！","memo":"相づち。会話が続く"},{"id":135,"w":12,"sc":"雑談","en":"Oh really? Tell me more.","ja":"へえ、本当？もっと教えて","memo":"興味を示す表現"},{"id":136,"w":12,"sc":"雑談","en":"I've been to Sydney and Melbourne.","ja":"シドニーとメルボルンに行きました","memo":"経験を話す現在完了"},{"id":137,"w":12,"sc":"雑談","en":"In Japan, we usually eat rice with it.","ja":"日本では普通ご飯と一緒に食べます","memo":"文化を説明する型"},{"id":138,"w":12,"sc":"雑談","en":"I'm not sure how to say this in English, but...","ja":"英語でどう言うか分からないのですが…","memo":"詰まったときの万能つなぎ"},{"id":139,"w":12,"sc":"雑談","en":"Sorry, what's that called again?","ja":"すみません、それは何という名前でしたっけ？","memo":""},{"id":140,"w":12,"sc":"雑談","en":"It's been great chatting with you.","ja":"お話しできて良かったです","memo":"別れ際"},{"id":141,"w":12,"sc":"雑談","en":"Do you have any tips for a first-timer?","ja":"初めて来た人におすすめのことはありますか？","memo":"現地の人と仲良くなれる質問"},{"id":142,"w":12,"sc":"雑談","en":"Arvo","ja":"午後（afternoon）","memo":"豪州スラング。This arvo = 今日の午後"},{"id":143,"w":12,"sc":"雑談","en":"Brekkie / Servo / Bottle-o","ja":"朝食 / ガソリンスタンド / 酒屋","memo":"豪州は語尾を -o や -ie に縮める癖がある"}],"dialogues":{"1":[{"who":"Sam","en":"Hi there. How are you going?","ja":"やあ。調子どう？"},{"who":"You","en":"Good, thanks. How about you?","ja":"元気です、ありがとう。あなたは？"},{"who":"Sam","en":"Not too bad. Are you new here?","ja":"まあまあ。ここは初めて？"},{"who":"You","en":"Yes. I'm from Japan. This is my first time here.","ja":"はい。日本から来ました。ここは初めてです"},{"who":"Sam","en":"Nice one. What are you up to this arvo?","ja":"いいね。今日の午後は何するの？"},{"who":"You","en":"Sorry, could you say that again?","ja":"すみません、もう一度言ってもらえますか？"},{"who":"Sam","en":"No worries. What are you doing this afternoon?","ja":"気にしないで。今日の午後何するの？"},{"who":"You","en":"I'm not sure yet. What do you recommend around here?","ja":"まだ決めてません。この辺のおすすめは？"},{"who":"Sam","en":"There's a good market down the road.","ja":"道の先にいいマーケットがあるよ"},{"who":"You","en":"Thanks so much, I appreciate it. Have a good one!","ja":"本当にありがとう。良い一日を！"}],"2":[{"who":"Crew","en":"Would you like chicken or beef?","ja":"チキンとビーフ、どちらになさいますか？"},{"who":"You","en":"Chicken, please.","ja":"チキンをお願いします"},{"who":"Crew","en":"And something to drink?","ja":"お飲み物は？"},{"who":"You","en":"Could I have a glass of water, please?","ja":"お水を一杯いただけますか？"},{"who":"You","en":"And could I get a blanket?","ja":"あと毛布をもらえますか？"},{"who":"Crew","en":"Of course. I'll bring one shortly.","ja":"もちろん。すぐお持ちします"},{"who":"You","en":"Excuse me, where is the baggage claim?","ja":"すみません、手荷物受取所はどこですか？"},{"who":"Staff","en":"Go down the escalator and turn right.","ja":"エスカレーターを降りて右です"},{"who":"You","en":"Thank you. Where can I get a SIM card?","ja":"ありがとう。SIMカードはどこで買えますか？"},{"who":"Staff","en":"Just past the exit, on your left.","ja":"出口を過ぎた左側にありますよ"}],"3":[{"who":"Officer","en":"Passport, please. What's the purpose of your visit?","ja":"パスポートを。渡航の目的は？"},{"who":"You","en":"I'm here for sightseeing.","ja":"観光で来ました"},{"who":"Officer","en":"How long will you be staying?","ja":"どのくらい滞在しますか？"},{"who":"You","en":"I'll be staying for ten days.","ja":"10日間滞在します"},{"who":"Officer","en":"Where are you staying?","ja":"どこに泊まりますか？"},{"who":"You","en":"I'm staying at a hotel in Sydney. Here's my booking confirmation.","ja":"シドニーのホテルです。これが予約確認書です"},{"who":"Officer","en":"Are you carrying any food?","ja":"食品は持っていますか？"},{"who":"You","en":"Yes. I have some snacks in my bag. Do I need to declare this?","ja":"はい、カバンにお菓子が。これは申告が必要ですか？"},{"who":"Officer","en":"Good on you for asking. Take the red lane.","ja":"聞いてくれて助かるよ。赤のレーンへ"},{"who":"You","en":"Thank you. Nothing else to declare.","ja":"ありがとうございます。他に申告するものはありません"}],"4":[{"who":"You","en":"Hello. I have a reservation under Ariji.","ja":"こんにちは。アリジの名前で予約しています"},{"who":"Staff","en":"Lovely. Two nights, is that right?","ja":"はい。2泊でお間違いないですか？"},{"who":"You","en":"Yes. Is breakfast included?","ja":"はい。朝食は含まれていますか？"},{"who":"Staff","en":"It is, from seven to ten.","ja":"含まれています。7時から10時まで"},{"who":"You","en":"Great. What's the Wi-Fi password?","ja":"いいですね。Wi-Fiのパスワードは？"},{"who":"Staff","en":"It's on the card in your room.","ja":"お部屋のカードに書いてあります"},{"who":"You","en":"Thanks. Sorry, one more thing.","ja":"ありがとう。すみません、もう一つ"},{"who":"You","en":"The air conditioning isn't working, and there's no hot water.","ja":"エアコンが動かなくて、お湯も出ません"},{"who":"Staff","en":"Oh no. I'll send someone up right away.","ja":"それは失礼しました。すぐ人を向かわせます"},{"who":"You","en":"Thank you. Could I get some extra towels as well?","ja":"ありがとう。タオルも追加でもらえますか？"}],"5":[{"who":"Barista","en":"Morning! What can I get you?","ja":"おはよう！何にする？"},{"who":"You","en":"Can I get a flat white, please?","ja":"フラットホワイトをお願いします"},{"who":"Barista","en":"Regular or large?","ja":"レギュラー？ラージ？"},{"who":"You","en":"Regular, thanks. Takeaway, please.","ja":"レギュラーで。持ち帰りでお願いします"},{"who":"Barista","en":"No worries. Any milk preference?","ja":"了解。ミルクの希望は？"},{"who":"You","en":"Could I have oat milk instead?","ja":"オーツミルクに変更できますか？"},{"who":"Barista","en":"Easy done. That's five fifty.","ja":"できますよ。5ドル50セントです"},{"who":"You","en":"Card, please. Where are you from originally?","ja":"カードで。もともとどちらの出身ですか？"},{"who":"Barista","en":"Melbourne, born and bred. Enjoy your day!","ja":"生粋のメルボルンっ子だよ。いい一日を！"},{"who":"You","en":"Cheers! That was really good, thanks.","ja":"ありがとう！すごく美味しかったです"}],"6":[{"who":"Waiter","en":"Hi there. A table for how many?","ja":"こんにちは。何名様ですか？"},{"who":"You","en":"A table for two, please.","ja":"2名でお願いします"},{"who":"Waiter","en":"This way. Here are the menus.","ja":"こちらへ。メニューです"},{"who":"You","en":"Thanks. What's the most popular dish here?","ja":"ありがとう。ここで一番人気の料理は？"},{"who":"Waiter","en":"The barramundi is a favourite.","ja":"バラマンディが人気ですね"},{"who":"You","en":"I'll have the barramundi. Does this contain nuts?","ja":"バラマンディをいただきます。これにナッツは入っていますか？"},{"who":"Waiter","en":"No nuts in that one.","ja":"それには入っていません"},{"who":"You","en":"Good. I'm allergic to shellfish, just so you know.","ja":"よかった。念のため、甲殻類アレルギーがあります"},{"who":"Waiter","en":"I'll let the kitchen know. Anything to drink?","ja":"厨房に伝えます。お飲み物は？"},{"who":"You","en":"Could we get some tap water? And the bill after, please.","ja":"お水をもらえますか？あとでお会計もお願いします"}],"7":[{"who":"Staff","en":"Hi! Are you after anything in particular?","ja":"いらっしゃい！何かお探しですか？"},{"who":"You","en":"I'm just having a look, thanks.","ja":"見ているだけです、ありがとう"},{"who":"You","en":"Actually, how much is this?","ja":"やっぱり、これはいくらですか？"},{"who":"Staff","en":"That one's sixty dollars.","ja":"それは60ドルです"},{"who":"You","en":"Do you have this in a medium?","ja":"これのMサイズはありますか？"},{"who":"Staff","en":"Let me check out the back.","ja":"奥を見てきますね"},{"who":"You","en":"Thanks. Can I try this on? Where are the fitting rooms?","ja":"ありがとう。試着できますか？試着室はどこですか？"},{"who":"Staff","en":"Just behind you, on the right.","ja":"すぐ後ろの右側です"},{"who":"You","en":"I'll take this one. Can I get a tax refund for this?","ja":"これにします。免税の対象ですか？"},{"who":"Staff","en":"You can. Keep the receipt for the airport.","ja":"対象ですよ。空港用にレシートを保管してください"}],"8":[{"who":"You","en":"Excuse me, where can I buy an Opal card?","ja":"すみません、Opalカードはどこで買えますか？"},{"who":"Staff","en":"At the machine over there. Or just tap your card.","ja":"あそこの機械です。カードをタップでもいいですよ"},{"who":"You","en":"Can I tap on with my credit card?","ja":"クレジットカードでタップできますか？"},{"who":"Staff","en":"Yep, that works fine.","ja":"はい、問題なく使えます"},{"who":"You","en":"Thanks. Which platform for the airport?","ja":"ありがとう。空港行きは何番ホームですか？"},{"who":"Staff","en":"Platform two. About twenty minutes.","ja":"2番ホーム。20分くらいです"},{"who":"You","en":"Does this bus go to Bondi Beach?","ja":"このバスはボンダイビーチに行きますか？"},{"who":"Driver","en":"It does. Hop on.","ja":"行くよ。乗って"},{"who":"You","en":"Could you tell me when to get off?","ja":"降りる場所を教えてもらえますか？"},{"who":"Driver","en":"No worries, I'll give you a shout.","ja":"任せて、声かけるよ"}],"9":[{"who":"You","en":"Excuse me, how do I get to the station?","ja":"すみません、駅にはどう行けばいいですか？"},{"who":"Local","en":"Go straight and turn left at the lights.","ja":"まっすぐ行って信号を左です"},{"who":"You","en":"Sorry, could you say that again?","ja":"すみません、もう一度言ってもらえますか？"},{"who":"Local","en":"Straight ahead, then left at the traffic lights.","ja":"まっすぐ、それから信号で左"},{"who":"Local","en":"Walk past the servo, and it's next to the chemist.","ja":"ガソリンスタンドを過ぎて、薬局の隣です"},{"who":"You","en":"So you mean I should go this way?","ja":"つまり、こっちに行けばいいということですか？"},{"who":"Local","en":"That's it. Actually, no — go the other way. It's quicker.","ja":"そう。あ、いや逆だ。そっちのほうが早い"},{"who":"You","en":"Could you show me on the map?","ja":"地図で示してもらえますか？"},{"who":"Local","en":"Sure. We're here, and the station is there.","ja":"いいよ。今ここで、駅はそこ"},{"who":"You","en":"Is it far from here? Can I walk there?","ja":"ここから遠いですか？歩いて行けますか？"}],"10":[{"who":"You","en":"Two adults, please.","ja":"大人2枚お願いします"},{"who":"Staff","en":"That's forty dollars altogether.","ja":"合計40ドルです"},{"who":"You","en":"What time does it close?","ja":"何時に閉まりますか？"},{"who":"Staff","en":"Five o'clock today.","ja":"今日は5時です"},{"who":"You","en":"Do I need to book in advance for the tour?","ja":"ツアーは事前予約が必要ですか？"},{"who":"Staff","en":"For the morning one, yes. The afternoon one is fine.","ja":"朝のはそうですね。午後のは大丈夫です"},{"who":"You","en":"Where does the tour start? Do we need to bring anything?","ja":"ツアーはどこから出発ですか？持ち物は？"},{"who":"Staff","en":"Out the front. Just bring a hat and sunscreen.","ja":"建物の前です。帽子と日焼け止めだけ"},{"who":"You","en":"Got it. Could you take a photo of us?","ja":"了解です。私たちの写真を撮ってもらえますか？"},{"who":"Staff","en":"Of course. Say cheese!","ja":"もちろん。はい、チーズ！"}],"11":[{"who":"You","en":"Excuse me, could you help me, please?","ja":"すみません、助けてもらえますか？"},{"who":"Officer","en":"Of course. What's happened?","ja":"もちろん。何がありました？"},{"who":"You","en":"Someone took my bag. My passport was inside.","ja":"カバンを盗られました。パスポートが入っていました"},{"who":"Officer","en":"Where and when was this?","ja":"場所と時間は？"},{"who":"You","en":"At the station, about an hour ago.","ja":"駅で、1時間ほど前です"},{"who":"Officer","en":"Right. I'll take a report.","ja":"わかりました。被害届を取ります"},{"who":"You","en":"Thank you. Could you call the Japanese embassy?","ja":"ありがとう。日本大使館に電話してもらえますか？"},{"who":"Officer","en":"I'll give you the number. Are you feeling alright?","ja":"番号をお渡しします。体調は大丈夫ですか？"},{"who":"You","en":"I'm not feeling well. I need to see a doctor.","ja":"体調が良くありません。医者に診てもらう必要があります"},{"who":"Officer","en":"There's a chemist just around the corner.","ja":"角を曲がったところに薬局がありますよ"}],"12":[{"who":"Officer","en":"What's the purpose of your visit?","ja":"渡航の目的は？"},{"who":"You","en":"I'm here for sightseeing. I'll be staying for ten days.","ja":"観光です。10日間滞在します"},{"who":"Staff","en":"Checking in? Name, please.","ja":"チェックインですか？お名前を"},{"who":"You","en":"I have a reservation under Ariji. Is breakfast included?","ja":"アリジで予約しています。朝食は含まれますか？"},{"who":"Barista","en":"What can I get you?","ja":"何にしますか？"},{"who":"You","en":"Can I get a flat white, please? Takeaway, thanks.","ja":"フラットホワイトを。持ち帰りでお願いします"},{"who":"Driver","en":"Where are you headed?","ja":"どちらまで？"},{"who":"You","en":"Does this bus go to the museum? Could you tell me when to get off?","ja":"このバスは博物館に行きますか？降りる場所を教えてもらえますか？"},{"who":"Local","en":"You right there, mate?","ja":"大丈夫かい？"},{"who":"You","en":"How do I get to the station? Sorry, could you speak a little slower?","ja":"駅にはどう行けばいいですか？すみません、もう少しゆっくり話してもらえますか？"}]},"listening":{"1":{"text":"Tom works at a small hostel in Sydney. Every morning he says hello to the guests. Most of them are travellers from other countries. Some of them speak very little English. Tom always speaks slowly and asks simple questions. He says the same thing every day: How are you going? Many guests are surprised. They think he is asking where they are going. But he is just saying hello. Tom likes his job because he meets people from all over the world.","q":[{"q":"トムはどこで働いていますか？","a":"シドニーの小さなホステル"},{"q":"トムはなぜゆっくり話すのですか？","a":"宿泊客の多くが外国からの旅行者で、英語をほとんど話さない人もいるから"},{"q":"宿泊客が驚くのはなぜですか？","a":"How are you going? を「どこへ行くの？」と誤解するから"}]},"2":{"text":"Yuki flew to Melbourne last week. On the plane she asked for water and a blanket. The flight was long, so she slept for six hours. When she landed, she went to get her bag. But her bag did not come out. She waited for thirty minutes. Then she went to the desk and explained the problem. The staff were very kind. They found her bag the next morning and sent it to her hotel.","q":[{"q":"ユキは機内で何を頼みましたか？","a":"水と毛布"},{"q":"荷物はどうなりましたか？","a":"出てこなかった（ロストバゲージ）"},{"q":"最終的にどう解決しましたか？","a":"翌朝スタッフが荷物を見つけ、ホテルに送ってくれた"}]},"3":{"text":"Australia has very strict rules about food. You cannot bring in fresh fruit, meat or plants. Many travellers do not know this. They put an apple in their bag and forget about it. At the airport, dogs walk around and check the bags. If you do not tell the officer, you may pay a big fine. But if you tell them, there is no problem. They simply take the food away. So the best thing to do is always say yes when they ask.","q":[{"q":"オーストラリアに持ち込めないものは？","a":"生の果物・肉・植物"},{"q":"空港では何が荷物をチェックしていますか？","a":"犬"},{"q":"申告した場合どうなりますか？","a":"問題なし。食品を回収されるだけ"}]},"4":{"text":"Ben stayed at a hotel in Cairns for three nights. On the first night the air conditioning stopped working. It was very hot, so he could not sleep. He called the front desk at eleven o'clock. A staff member came up, but he could not fix it. The next morning the hotel gave Ben a different room. They also gave him a free breakfast. Ben was happy in the end, but he was very tired that first day.","q":[{"q":"最初の夜、何が壊れましたか？","a":"エアコン"},{"q":"ベンは何時にフロントに電話しましたか？","a":"11時"},{"q":"ホテルは何をしてくれましたか？","a":"翌朝に別の部屋を用意し、朝食を無料にしてくれた"}]},"5":{"text":"Coffee is very important in Australia. Melbourne is famous for it. If you ask for a coffee, the barista will ask you what kind. A flat white has milk and a thin layer of foam. A long black is hot water with two shots of coffee. A short black is just one shot. In Melbourne there is also a magic, which is a small drink with strong coffee and milk. If you want to take it with you, say takeaway, not to go.","q":[{"q":"long black とは何ですか？","a":"お湯にエスプレッソ2ショットを注いだもの"},{"q":"magic はどこの飲み物ですか？","a":"メルボルン"},{"q":"持ち帰りは何と言いますか？","a":"takeaway（to go ではない）"}]},"6":{"text":"Many pubs in Australia work differently from restaurants. You do not wait for a waiter. You look at the menu on the wall, then walk to the counter and order there. You pay at the same time. The staff give you a number, and you take it back to your table. Later someone brings your food. Some visitors sit and wait for a long time before they understand. If you are not sure, just ask: do I order at the counter?","q":[{"q":"豪州のパブでは注文はどこでしますか？","a":"カウンターで"},{"q":"支払いのタイミングは？","a":"注文と同時"},{"q":"番号札は何のためですか？","a":"席まで持ち帰り、料理を運んでもらうため"}]},"7":{"text":"If you buy something expensive in Australia, you may get some money back at the airport. This is called the Tourist Refund Scheme. You must spend more than three hundred dollars in one shop. You must also keep the receipt and take the item with you. At the airport, you go to the TRS desk before your flight. The queue can be long, so go early. Many travellers forget the receipt and cannot get the money back.","q":[{"q":"免税を受けるには1店舗でいくら以上必要ですか？","a":"300ドル以上"},{"q":"空港でどこへ行きますか？","a":"TRSデスク"},{"q":"多くの旅行者が失敗する理由は？","a":"レシートを忘れるから"}]},"8":{"text":"In Sydney you use an Opal card for trains, buses and ferries. In Melbourne it is called a Myki. You can buy them at stations and at some small shops. These days you do not really need a card. You can tap on with a credit card or a phone. Remember to tap off when you get out. If you forget, you pay the highest price. The ferry to Manly is popular with visitors because the view is beautiful.","q":[{"q":"メルボルンの交通カードの名前は？","a":"Myki"},{"q":"降りるときに忘れてはいけないことは？","a":"タップオフ（忘れると最高額を請求される）"},{"q":"観光客に人気のフェリーの行き先は？","a":"マンリー"}]},"9":{"text":"Asking for directions is hard because you must listen, not speak. People often talk fast and use local words. They may say the servo, which means the petrol station. Or the chemist, which is the pharmacy. If you do not understand, do not just say yes. Ask them to repeat, or ask them to show you on the map. Most Australians are happy to help. Some will even walk with you part of the way.","q":[{"q":"道を聞くのが難しい理由は？","a":"自分が話すのではなく、聞き取る側になるから"},{"q":"servo と chemist はそれぞれ何ですか？","a":"ガソリンスタンドと薬局"},{"q":"分からないときはどうすべきですか？","a":"「はい」と言わず、もう一度言ってもらうか地図で示してもらう"}]},"10":{"text":"The beaches in Australia are beautiful, but you must be careful. Always swim between the red and yellow flags. Those flags show where the lifesavers are watching. Outside the flags the water can pull you away from the beach very quickly. This is called a rip. If it happens, do not swim against it. Stay calm, float, and put your hand up. Someone will come. Every year the lifesavers rescue thousands of people.","q":[{"q":"どこで泳ぐべきですか？","a":"赤と黄色の旗の間"},{"q":"rip とは何ですか？","a":"岸から沖へ引く流れ（離岸流）"},{"q":"流されたらどうすべきですか？","a":"逆らって泳がず、落ち着いて浮き、手を上げる"}]},"11":{"text":"If you lose your passport in Australia, do not panic. First, go to the police and make a report. They will give you a paper with a number on it. Then contact your embassy. For Japanese travellers there are offices in Sydney, Melbourne and Brisbane. Take the police paper and any photo of your passport. It usually takes a few days. This is why it is a good idea to keep a photo of your passport on your phone.","q":[{"q":"パスポートを失くしたら最初にどこへ行きますか？","a":"警察（被害届を出す）"},{"q":"大使館・領事館に持っていくものは？","a":"警察の書類とパスポートの写真"},{"q":"事前にしておくと良いことは？","a":"パスポートの写真をスマホに保存しておく"}]},"12":{"text":"You have studied for twelve weeks. You know how to greet people and how to ask them to repeat. You can check into a hotel, order coffee, catch a bus and ask for directions. You can explain a problem and ask for help. That is enough. You do not need perfect English to enjoy a trip. The most useful thing you have learned is not a word or a rule. It is this: when you do not understand, you can always ask again.","q":[{"q":"この12週間で身につけた最も役立つことは？","a":"分からないときに聞き返せること"},{"q":"旅行を楽しむのに完璧な英語は必要ですか？","a":"必要ない"},{"q":"挙げられている場面を3つ以上言えますか？","a":"ホテルのチェックイン、コーヒーの注文、バス、道を聞く、問題の説明と助けを求めること"}]}},"scenarios":{"1":["ホステルの共有キッチンで隣に座った宿泊客。名前・出身・滞在期間を聞き合う。","同じ設定だが相手が早口。豪州スラング（arvo など）を1回混ぜて、聞き返させる。","相手が2人（宿泊客とスタッフ）。話が交錯し、誰に答えるかを判断させる。"],"2":["客室乗務員。飲み物と食事の注文だけ。","到着後の空港案内所。SIMカード、Wi-Fi、両替の場所を尋ねる。","荷物が出てこない。カウンターで状況を説明し、宿泊先へ届ける手配をする。"],"3":["入国審査官。目的・期間・宿泊先の3点だけを穏やかに聞く。","同じだが早口でぶっきらぼう。復路の航空券も確認してくる。","税関検査。カバンの中の食品について詰めてくる。申告漏れを疑う質問を混ぜる。"],"4":["フロントでチェックイン。予約名、朝食の有無、Wi-Fiパスワード。","チェックアウト後の荷物預かりと、市内中心部への行き方を相談する。","部屋のエアコンが壊れている。電話で伝え、直らないので部屋の交換を交渉する。"],"5":["注文を受けるだけのバリスタ。サイズと店内／持ち帰りを聞く。","ミルクの種類を聞き、豪州特有の用語を使う。注文後に出身地を尋ねて雑談を振る。","混雑した朝のカフェ。早口で、後ろに人が並んでいる。magic など聞き慣れない用語を出す。"],"6":["席に案内し、注文を取るウェイター。","アレルギー確認と材料の抜きに対応。おすすめを聞かれたら説明する。","パブ形式（カウンターで先払い）。仕組みを説明せず、学習者に確認させる。会計の割り勘まで。"],"7":["声をかけてくる店員。見ているだけだと伝える練習。","サイズ違い・色違いを探してもらい、試着する。","免税（TRS）について質問する。店員は制度に詳しくなく曖昧に答える。食い下がらせる。"],"8":["駅の窓口。Opalカードの買い方とチャージ。","バス運転手。行き先を告げ、降りる場所を教えてもらうよう頼む。","タクシー。住所が聞き取ってもらえず言い直しを求められる。到着後の料金確認まで。"],"9":["2ステップの道案内（まっすぐ、信号を左）。ゆっくり。","4ステップ。目印を含める（past the servo, next to the chemist）。復唱させて確認する。","早口で、途中で言い直す（Actually, no — go the other way）。地図に逃げられるか見る。"],"10":["チケット窓口。人数と料金だけ。","ツアーデスク。所要時間、持ち物、集合場所を相談する。","希望のツアーが満席。代替案を提示され、条件を比較して決める。"],"11":["薬局（chemist）。頭痛と熱を伝えて薬をもらう。","警察。財布の盗難。いつ・どこで・何が入っていたかを聞く。助け舟は最小限に。","航空会社カウンター。乗り遅れた。振替便、追加料金、宿泊の手配を交渉する。"],"12":["入国審査官 → ホテル受付 → バリスタ、の3場面を続けて。","バス運転手 → 店員 → 通行人（道案内）、の3場面を続けて。","旅程まるごと通し（6場面）。終了後に日本語で総評：通じるレベルか／最も危うい場面／優先3つ。"]}};
+const SEED = {"start": "2026-08-18", "day": 2, "srs": {"0": {"b": 2, "due": "2026-08-20"}, "4": {"b": 2, "due": "2026-08-20"}, "6": {"b": 2, "due": "2026-08-20"}, "7": {"b": 2, "due": "2026-08-20"}, "1": {"b": 1, "due": "2026-08-19"}, "9": {"b": 1, "due": "2026-08-19"}, "12": {"b": 1, "due": "2026-08-19"}, "13": {"b": 1, "due": "2026-08-19"}, "14": {"b": 1, "due": "2026-08-19"}, "19": {"b": 1, "due": "2026-08-19"}}, "done": {"1": ["A", "B"]}, "log": [{"d": 1, "date": "2026-08-18", "done": "AB"}], "weak": [1, 9, 12, 13, 14, 19], "voice": null, "rate": 0.8};
+const $=id=>document.getElementById(id);
+const KEY='travel-english-v1';
+
+/* ---------- state ---------- */
+let S=null, storageOK=true;
+function load(){
+  try{ const r=localStorage.getItem(KEY); S = r?JSON.parse(r):structuredClone(SEED); }
+  catch(e){ storageOK=false; S=structuredClone(SEED); }
+}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ storageOK=false; } }
+load();
+
+const T=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+function plus(n){const d=new Date();d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const wk=()=>Math.min(12,Math.ceil(S.day/7));
+const dow=()=>((S.day-1)%7)+1;
+const W=()=>DATA.weeks[wk()-1];
+const P=id=>DATA.phrases[id];
+const doneToday=b=>(S.done[S.day]||[]).includes(b);
+function markDone(b){ (S.done[S.day]=S.done[S.day]||[]); if(!S.done[S.day].includes(b))S.done[S.day].push(b); save(); }
+
+/* ---------- speech ---------- */
+let voices=[],V=null,rate=0.8;
+function loadVoices(){
+  voices=speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().startsWith('en'));
+  const rank=v=>v.lang==='en-GB'?0:v.lang==='en-AU'?1:2;
+  voices.sort((a,b)=>rank(a)-rank(b));
+  const sel=$('voice'); sel.innerHTML='';
+  voices.forEach((v,n)=>{const o=document.createElement('option');o.value=n;
+    o.textContent=v.name+(v.lang==='en-GB'?'（英国 ← 最適）':v.lang==='en-AU'?'（豪州）':'（'+v.lang+'）');sel.appendChild(o);});
+  if(S.voice!=null){const k=voices.findIndex(v=>v.name===S.voice); if(k>=0){sel.value=k;V=voices[k];}}
+  if(!V) V=voices[0]||null;
+  const n=$('vnote');
+  if(!voices.length){n.style.display='block';n.innerHTML='<b>英語の音声が見つかりません。</b>このページをブラウザ（Safari / Chrome）で開いてください。';}
+  else if(voices[0].lang!=='en-GB'){n.style.display='block';n.innerHTML='<b>英国英語の音声がありません。</b>今の声でも練習はできますが、追加すると精度が上がります。iPhone: 設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 英語（英国）';}
+  else n.style.display='none';
+}
+speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
+$('voice').onchange=e=>{V=voices[e.target.value];S.voice=V?V.name:null;save();};
+$('vtest').onclick=()=>say("Hi there. How are you going?");
+$('spd').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  [...$('spd').children].forEach(x=>x.setAttribute('aria-pressed',x===b));
+  rate=parseFloat(b.dataset.r);S.rate=rate;save();};
+if(S.rate){rate=S.rate;[...$('spd').children].forEach(x=>x.setAttribute('aria-pressed',parseFloat(x.dataset.r)===rate));}
+
+function say(text,done,r){
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  if(V)u.voice=V; u.lang=(V&&V.lang)||'en-GB'; u.rate=r||rate;
+  let f=false; const fin=()=>{if(f)return;f=true;clearTimeout(t);done&&done();};
+  const t=setTimeout(fin,Math.max(3500,text.length*95/(r||rate)));
+  u.onend=fin;u.onerror=fin; speechSynthesis.speak(u);
+}
+function sayAll(list,i,done,r){ if(i>=list.length){done&&done();return;}
+  say(list[i],()=>setTimeout(()=>sayAll(list,i+1,done,r),260),r); }
+
+/* ---------- nav ---------- */
+function go(id){speechSynthesis.cancel();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0);}
+document.querySelectorAll('[data-home]').forEach(b=>b.onclick=()=>{home();go('home');});
+$('toSet').onclick=()=>go('set'); $('toRep').onclick=()=>{report();go('rep');};
+
+/* ---------- HOME ---------- */
+const TIPS={1:"今週が一番大事です。`Sorry, could you say that again?` は他が全部飛んでも旅行を成立させます。",
+ 3:"豪州の検疫は非常に厳格です。食品は隠さず申告するのが鉄則。",
+ 5:"豪州のコーヒー用語は実質「別言語」。①店内か持ち帰り →②サイズ →③種類 の順で言うと確実に伝わります。",
+ 6:"ここから先、リスニングにオーストラリア英語の癖が混ざり始めます。",
+ 9:"今週は珍しく「話す」より「聞く」が主役。道案内は相手が一方的に喋ります。",
+ 11:"気が重いテーマですが、飛ばすと本番で最も困ります。淡々と。",
+ 12:"新規はなし。通し稽古と総復習の週です。"};
+function dueList(){const t=T();return Object.keys(S.srs).filter(k=>S.srs[k].due<=t).map(Number);}
+function newList(){
+  if(dow()>3&&wk()<12) return [];
+  const un=DATA.phrases.filter(p=>p.w===wk()&&!(p.id in S.srs)).map(p=>p.id);
+  return un.slice(0,10);
+}
+function home(){
+  const w=W();
+  $('hwk').textContent=`第${wk()}週 / DAY ${dow()}　（通算${S.day}日目）`;
+  $('hth').textContent=w.theme; $('hgl').textContent=w.goal;
+  $('hbar').style.width=(S.day/84*100)+'%';
+  $('hdays').textContent=`${S.day} / 84 日`;
+  const learned=Object.keys(S.srs).length;
+  $('hcards').textContent=`フレーズ ${learned} / 144`;
+  const d=dueList().length,n=newList().length;
+  $('sA').textContent = (n? `新しく${n}枚、`:'')+`復習${d}枚`;
+  ['A','B','C','D'].forEach(b=>{const el=$('b'+b);
+    el.classList.toggle('done',doneToday(b));
+    $('r'+b).textContent=doneToday(b)?'✓ 完了':({A:'10分',B:'15分',C:'20分',D:'15分'})[b];});
+  const tip=$('htip');
+  if(dow()===7){tip.style.display='block';tip.innerHTML='<b>今日は日曜、録音チェックの日。</b>Cのロールプレイを録音して残してください。第1週の録音は必ず保存を。第6週・第12週に聞き返すと変化がはっきり分かります。';}
+  else if(TIPS[wk()]&&dow()===1){tip.style.display='block';tip.innerHTML='<b>今週のポイント。</b>'+TIPS[wk()];}
+  else if(dow()===6){tip.style.display='block';tip.innerHTML='<b>土曜は過去に戻る日。</b>新規はありません。復習だけで十分です。ここを飛ばすと定着しません。';}
+  else tip.style.display='none';
+  if(!storageOK){tip.style.display='block';tip.className='note w';
+    tip.innerHTML='<b>この環境では進捗を自動保存できません。</b>ファイルをブラウザで直接開いてください。設定から手動で書き出すこともできます。';}
+}
+$('bA').onclick=()=>startSrs(); $('bB').onclick=()=>startSh();
+$('bC').onclick=()=>startRp(); $('bD').onclick=()=>startLs();
+$('finDay').onclick=()=>{ if(!confirm('今日を終えて翌日に進みます。よろしいですか？'))return;
+  S.log.push({d:S.day,date:T(),done:(S.done[S.day]||[]).join('')});
+  S.day=Math.min(84,S.day+1); save(); home(); };
+
+/* ---------- A: SRS ---------- */
+let Q=[],qi=0,shown=false,res={a:0,b:0,c:0,n:0},newSet=new Set();
+function startSrs(){
+  const nw=newList(); newSet=new Set(nw);
+  Q=[...nw,...dueList()]; qi=0;shown=false;res={a:0,b:0,c:0,n:0};
+  if(!Q.length){ $('scnt').textContent=''; $('scard').innerHTML='<div class="jp">今日の復習は終わっています。</div><div class="memo">明日また期日が来ます。</div>';
+    $('sctl').innerHTML='<button class="big" data-h>ホームに戻る</button>'; bindH(); go('srs'); return; }
+  drawSrs(); go('srs');
+}
+function bindH(){document.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{home();go('home');});}
+function drawSrs(){
+  if(qi>=Q.length){ finSrs(); return; }
+  const p=P(Q[qi]), isNew=newSet.has(p.id);
+  $('scnt').textContent=`${qi+1} / ${Q.length}`;
+  if(isNew&&!shown){
+    $('scard').innerHTML=`<span class="newtag">はじめて出るフレーズ</span><div class="tag">${p.sc}</div>
+      <div class="ans" style="border:0;padding:0;margin:0">${esc(p.en)}</div>
+      <div class="jp" style="font-size:16px;color:var(--ink-2);margin-top:10px">${esc(p.ja)}</div>
+      ${p.memo?`<div class="memo">${esc(p.memo)}</div>`:''}`;
+    $('sctl').innerHTML=`<button class="big" id="sp">🔊 聞く</button>
+      <div class="rowb"><button class="big go" id="sn">3回言った → 次へ</button></div>`;
+    $('sp').onclick=()=>say(p.en); $('sn').onclick=()=>{ srsGrade('a',true); };
+    say(p.en); return;
+  }
+  if(!shown){
+    $('scard').innerHTML=`<div class="tag">${p.sc}</div><div class="jp">${esc(p.ja)}</div>`;
+    $('sctl').innerHTML=`<button class="big" id="sr">英語を見る</button>
+      <div class="rowb"><button class="ghost" id="sk">飛ばす</button></div>`;
+    $('sr').onclick=()=>{shown=true;drawSrs();};
+    $('sk').onclick=()=>{qi++;shown=false;drawSrs();};
+  }else{
+    $('scard').innerHTML=`<div class="tag">${p.sc}</div><div class="jp" style="font-size:16px;color:var(--ink-2)">${esc(p.ja)}</div>
+      <div class="ans">${esc(p.en)}</div>${p.memo?`<div class="memo">${esc(p.memo)}</div>`:''}`;
+    $('sctl').innerHTML=`<button style="width:100%;margin-bottom:10px" id="sp">🔊 聞く</button>
+      <div class="g3"><button class="a" data-g="a">スラスラ出た</button>
+      <button class="b" data-g="b">詰まったが出た</button>
+      <button class="c" data-g="c">出なかった</button></div>`;
+    $('sp').onclick=()=>say(p.en);
+    document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>srsGrade(b.dataset.g));
+    say(p.en);
+  }
+}
+function srsGrade(g,isNewIntro){
+  const id=Q[qi], cur=S.srs[id]||{b:0,due:T()};
+  if(isNewIntro){ S.srs[id]={b:1,due:plus(1)}; res.n++; }
+  else if(g==='a'){ const nb=Math.min(5,(cur.b||1)+1);
+    const off={1:2,2:2,3:4,4:8,5:60}[nb]||2;
+    S.srs[id]={b:nb,due:plus(off)}; res.a++; }
+  else if(g==='b'){ S.srs[id]={b:cur.b||1,due:plus(1)}; res.b++; if(!S.weak.includes(id))S.weak.push(id); }
+  else { S.srs[id]={b:1,due:plus(1)}; res.c++; if(!S.weak.includes(id))S.weak.push(id); }
+  save(); qi++; shown=false; drawSrs();
+}
+function finSrs(){
+  markDone('A');
+  const tot=res.a+res.b+res.c;
+  $('scnt').textContent='';
+  $('scard').innerHTML=`<div class="jp">おつかれさまでした</div>
+    <div class="memo" style="font-size:14px;margin-top:14px">
+    ${res.n?`新しく覚えた ${res.n}枚${tot?'<br>':''}`:''}
+    ${tot?`スラスラ ${res.a}　／　詰まった ${res.b}　／　出なかった ${res.c}<br>正答率 ${Math.round(res.a/tot*100)}%`:''}</div>
+    ${res.n&&!tot?'<div class="memo">今日はここまで。本当のテストは明日です。導入直後に言えるのは当たり前で、<b>一晩おいて残っているか</b>が勝負になります。</div>':''}
+    ${res.b+res.c?'<div class="memo">詰まった分は明日また出ます。長い文は前半と後半に切って、別々に3回ずつ言うとほどけます。</div>':''}`;
+  $('sctl').innerHTML='<button class="big" data-h>ホームに戻る</button>'; bindH();
+}
+
+/* ---------- B: SHADOW ---------- */
+let SL=[],si=0,st=0,busy=false;
+const STEPS=[{n:'1',w:'まず聞くだけ',h:'声は出さずに、音だけ聞いてください。',g:0},
+  {n:'2',w:'あとに続けて言う',h:'音が終わってから、真似して言ってみてください。',g:0},
+  {n:'3',w:'重ねて言う',h:'音が鳴っている最中に、半拍遅れてかぶせます。これが本番。',g:1}];
+function startSh(){SL=DATA.dialogues[wk()];si=0;st=0;drawSh();go('sh');}
+function drawSh(){
+  if(si>=SL.length){ markDone('B');
+    $('hcnt').textContent=''; $('what').textContent='完了';$('dot').textContent='✓';$('dot').className='dot go';
+    $('hwho').textContent='';$('hen').textContent='おつかれさまでした';
+    $('hja').textContent='口が回らなかった行は、聞き取れていない行です。';$('hhint').textContent='';
+    $('hnext').textContent='ホームに戻る';$('hnext').className='big';
+    $('hnext').onclick=()=>{home();go('home');}; $('hpbar').style.width='100%'; return; }
+  const L=SL[si],C=STEPS[st];
+  $('hcnt').textContent=`${si+1} / ${SL.length} 行`;
+  $('hpbar').style.width=((si+st/3)/SL.length*100)+'%';
+  $('hwho').textContent=L.who;$('hen').textContent=L.en;$('hja').textContent=L.ja;
+  $('what').textContent=C.w;$('what').className='what'+(C.g?' now':'');
+  $('dot').textContent=C.n;$('dot').className='dot'+(C.g?' go':'');
+  $('hhint').textContent=C.h;
+  $('hnext').textContent=st<2?'▶ 再生する':(si<SL.length-1?'▶ 再生して次の行へ':'▶ 再生して終わる');
+  $('hnext').className='big'+(C.g?' go':'');
+  $('hnext').onclick=shNext;
+}
+function shNext(){
+  if(busy)return; busy=true;$('hnext').disabled=true;
+  const last=(st===2);
+  say(SL[si].en,()=>{busy=false;$('hnext').disabled=false;
+    if(!last){st++;drawSh();return;} st=0;si++;drawSh();});
+}
+$('hagain').onclick=()=>{if(!busy)say(SL[si].en);};
+$('hskip').onclick=()=>{if(busy)return;st=0;si++;drawSh();};
+$('hstop').onclick=()=>{markDone('B');home();go('home');};
+
+/* ---------- C: ROLEPLAY ---------- */
+const LV=['やさしい','ふつう','本番'];
+let rlv=0;
+function rpPrompt(){
+  const w=W(),sc=DATA.scenarios[wk()][rlv];
+  return `あなたはオーストラリアで働く現地の人です。私は英語がほぼ初心者の日本人旅行者です。
+
+【ルール】
+1. 英語だけで話してください。発音はイギリス英語ベースで t をはっきり（water を「ワラー」と弾音化しない）。言い回しはオーストラリアのものを自然に混ぜてください。
+2. 一度の発言は2文までにしてください。
+3. 私が10秒ほど黙ったら、英語でヒントを1つだけ出してください。
+4. 会話中は絶対に訂正しないでください。流れを止めないことが最優先です。
+5. 会話が終わったら日本語でまとめて教えてください：不自然だった箇所3つまで（直し方つき）／もっと自然に言える表現3つ／良かった点1つ。
+
+【今日の場面】第${wk()}週「${w.theme}」　難度：${LV[rlv]}
+${sc}
+
+では、あなたから話しかけて始めてください。`;
+}
+function startRp(){
+  const c=$('rsel');c.innerHTML='';
+  DATA.scenarios[wk()].forEach((s,n)=>{
+    const b=document.createElement('button');
+    b.innerHTML=`<b style="color:var(--accent)">${LV[n]}</b>　${esc(s)}`;
+    b.setAttribute('aria-pressed',n===rlv);
+    b.onclick=()=>{rlv=n;startRp();};
+    c.appendChild(b);
+  });
+  $('rout').value=rpPrompt();
+  const l=$('rlist');l.innerHTML='';
+  DATA.phrases.filter(p=>p.w===wk()).forEach(p=>{
+    const d=document.createElement('div');d.innerHTML=`<b style="color:var(--ink)">${esc(p.en)}</b><br>${esc(p.ja)}`;l.appendChild(d);});
+  go('rp');
+}
+$('rcopy').onclick=e=>cp($('rout'),e.target);
+$('rdone').onclick=()=>{markDone('C');home();go('home');};
+
+/* ---------- D: LISTENING ---------- */
+function startLs(){
+  const L=DATA.listening[wk()];
+  document.body.classList.remove('reveal');
+  $('ltext').style.display='none';
+  const c=$('lq');c.innerHTML='';
+  L.q.forEach((q,n)=>{const d=document.createElement('div');d.className='q';
+    d.innerHTML=`<b>Q${n+1}</b>${esc(q.q)}<div class="aa">→ ${esc(q.a)}</div>`;c.appendChild(d);});
+  $('ltxt').textContent=L.text;
+  go('ls');
+}
+const sents=()=>DATA.listening[wk()].text.split(/(?<=\.)\s+/).filter(Boolean);
+$('lplay').onclick=()=>sayAll(sents(),0);
+$('lslow').onclick=()=>sayAll(sents(),0,null,0.65);
+$('lrev').onclick=()=>{document.body.classList.add('reveal');$('ltext').style.display='block';
+  $('ltext').scrollIntoView({behavior:'smooth'});};
+$('ldone').onclick=()=>{markDone('D');home();go('home');};
+
+/* ---------- REPORT ---------- */
+function report(){
+  const w=W(),d=S.done[S.day]||[];
+  const weak=S.weak.slice(-8).map(id=>'・'+P(id).en).join('\n');
+  $('repout').value=
+`【今日の学習報告】
+第${wk()}週 DAY${dow()}（通算${S.day}/84日目）／テーマ：${w.theme}
+やったブロック：${d.length?d.join(', '):'なし'}
+覚えたフレーズ累計：${Object.keys(S.srs).length} / 144
+今日の復習：スラスラ${res.a} / 詰まった${res.b} / 出なかった${res.c}
+
+最近つまずいているフレーズ：
+${weak||'（なし）'}
+
+これを見て、明日の重点と、私が今つまずいている原因の見立てを教えてください。`;
+}
+$('repcopy').onclick=e=>cp($('repout'),e.target);
+
+/* ---------- SETTINGS ---------- */
+$('doexp').onclick=()=>{$('exp').value=JSON.stringify(S);};
+$('doimp').onclick=()=>{try{const o=JSON.parse($('exp').value);
+  if(!o.srs)throw 0; S=o;save();home();alert('読み込みました。');}catch(e){alert('読み込めませんでした。書き出した文字列をそのまま貼ってください。');}};
+$('dprev').onclick=()=>{S.day=Math.max(1,S.day-1);save();home();alert('DAY '+S.day+' にしました。');};
+$('dnext').onclick=()=>{S.day=Math.min(84,S.day+1);save();home();alert('DAY '+S.day+' にしました。');};
+$('reset').onclick=()=>{if(confirm('進捗をすべて消して最初からやり直します。よろしいですか？')){
+  try{localStorage.removeItem(KEY);}catch(e){} S=structuredClone(SEED);S.day=1;S.srs={};S.done={};S.log=[];S.weak=[];save();home();go('home');}};
+
+/* ---------- util ---------- */
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+function cp(ta,btn){const t=ta.value;const o=btn.textContent;
+  navigator.clipboard.writeText(t).then(()=>{btn.textContent='コピーしました';setTimeout(()=>btn.textContent=o,1600);})
+  .catch(()=>{ta.removeAttribute('readonly');ta.select();document.execCommand&&document.execCommand('copy');ta.setAttribute('readonly','');btn.textContent='コピーしました';setTimeout(()=>btn.textContent=o,1600);});}
+
+home();
+</script>
+</body>
+</html>
