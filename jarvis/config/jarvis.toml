@@ -75,6 +75,9 @@ embed_dim = 1024
 top_k = 8
 # 記憶を非公開リポへ自動コミットする間隔（分）。0 で無効。
 autocommit_minutes = 30
+# 記憶の MCP サーバ。WSL の Claude Code からここへ繋ぐ。
+mcp_host = "127.0.0.1"
+mcp_port = 8767
 
 [hands]
 # Windows 操作の MCP サーバ。WSL の Claude Code からここへ繋ぐ。

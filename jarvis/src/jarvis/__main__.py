@@ -7,6 +7,9 @@
     python -m jarvis ask TEXT   頭に投げて応答を見る（声を使わない）
     python -m jarvis test-ears  聞き取りだけ動かす
     python -m jarvis budget     Claude を今日何回呼んだかを見る
+    python -m jarvis recall Q   記憶から思い出せるものを見る
+    python -m jarvis reindex    Markdown の記憶を索引に入れ直す
+    python -m jarvis sync       記憶を非公開リポへ保存する
     python -m jarvis panic      すべての操作を止める
     python -m jarvis resume     止めた操作を再開できるようにする
 
@@ -92,6 +95,37 @@ def cmd_test_ears(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _memory():
+    from .memory.recall import Memory
+
+    cfg = _boot(require_clean=False)
+    return cfg, Memory(cfg)
+
+
+def cmd_recall(args: argparse.Namespace) -> int:
+    _cfg, memory = _memory()
+    print(memory.recall(args.query).as_prompt() or "関係のある記憶はありませんでした。")
+    return 0
+
+
+def cmd_reindex(_args: argparse.Namespace) -> int:
+    _cfg, memory = _memory()
+    print(f"{memory.reindex()} 個の断片を索引に入れました。")
+    return 0
+
+
+def cmd_sync(_args: argparse.Namespace) -> int:
+    _cfg, memory = _memory()
+    if memory.git.remote_is_public():
+        print("行き先が公開リポジトリなので保存しません。非公開リポに変えてください。")
+        return 1
+    if memory.sync():
+        print("記憶を保存しました。")
+        return 0
+    print("保存するものはありませんでした。")
+    return 0
+
+
 def cmd_budget(_args: argparse.Namespace) -> int:
     from .brain.budget import Budget
     from .memory import db
@@ -141,11 +175,17 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("panic", help="すべての操作を止める").set_defaults(func=cmd_panic)
     sub.add_parser("resume", help="操作を再開できるようにする").set_defaults(func=cmd_resume)
     sub.add_parser("test-ears", help="聞き取りだけ動かす").set_defaults(func=cmd_test_ears)
+    sub.add_parser("reindex", help="記憶を索引に入れ直す").set_defaults(func=cmd_reindex)
+    sub.add_parser("sync", help="記憶を非公開リポへ保存する").set_defaults(func=cmd_sync)
     sub.add_parser("run", help="通しで起動する").set_defaults(func=cmd_run)
 
     say = sub.add_parser("say", help="読み上げてみる")
     say.add_argument("text")
     say.set_defaults(func=cmd_say)
+
+    recall = sub.add_parser("recall", help="記憶から思い出せるものを見る")
+    recall.add_argument("query")
+    recall.set_defaults(func=cmd_recall)
 
     ask = sub.add_parser("ask", help="頭に投げて応答を見る")
     ask.add_argument("text")

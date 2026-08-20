@@ -16,6 +16,7 @@ from .brain.pipeline import Pipeline
 from .config import Config
 from .log import get_logger
 from .mouth.speech_text import extract_speech
+from .memory.recall import Memory
 from .mouth.tts import Voice
 from .safety.panic import PanicSwitch
 
@@ -29,7 +30,8 @@ class Supervisor:
         self._config = config
         self._voice = Voice(config.mouth)
         self._panic = PanicSwitch(config.paths.data)
-        self._pipeline = Pipeline(config, speak=self._voice.say)
+        self._memory = Memory(config)
+        self._pipeline = Pipeline(config, speak=self._voice.say, memory=self._memory)
         self._pipeline.on_stop = self._voice.stop
         self._stopping = threading.Event()
         self._threads: list[threading.Thread] = []
@@ -48,6 +50,9 @@ class Supervisor:
         self._spawn("頭", self._prepare_brain)
         self._spawn("見張り", self._watch_late_replies)
         self._spawn("停止キー", self._watch_panic_hotkey)
+        self._spawn("記憶の窓口", self._serve_memory)
+        if self._config.memory.autocommit_minutes > 0:
+            self._spawn("記憶の保存", self._autocommit_memory)
 
         try:
             self._listen()
@@ -79,6 +84,24 @@ class Supervisor:
         from .mouth.server import serve
 
         serve(self._config, self._voice)
+
+    def _serve_memory(self) -> None:
+        from .mcp.memory_server import create_server
+
+        create_server(self._config, self._memory).run(transport="streamable-http")
+
+    def _autocommit_memory(self) -> None:
+        """記憶を定期的に非公開リポへ残す。
+
+        押し出し先が公開リポだった場合は VaultGit 側で止まる。個人の予定と
+        会話が公開される事故は、一度起きたら取り消せない。
+        """
+        interval = self._config.memory.autocommit_minutes * 60
+        while not self._stopping.wait(interval):
+            try:
+                self._memory.sync()
+            except Exception as e:  # noqa: BLE001 - 保存に失敗しても本体は動かす
+                log.warning("記憶を保存できませんでした", error=str(e))
 
     def _prepare_brain(self) -> None:
         try:
@@ -156,6 +179,11 @@ class Supervisor:
 
     def shutdown(self) -> None:
         self._stopping.set()
+        try:
+            self._memory.sync()
+        except Exception as e:  # noqa: BLE001 - 終了処理で落ちない
+            log.warning("最後の保存に失敗しました", error=str(e))
+        self._memory.close()
         self._pipeline.close()
         self._voice.close()
         log.info("止まりました")

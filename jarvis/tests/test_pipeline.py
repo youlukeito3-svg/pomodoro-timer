@@ -160,3 +160,49 @@ def test_遅れて届いた返事を拾える(config) -> None:
 def test_遅れた返事の口を持たない駆動でも落ちない(config) -> None:
     pipeline, _, _, _ = build(config)
     assert pipeline.collect_late_replies() == []
+
+
+# ------------------------------------------------------------ 記憶の差し込み
+
+
+def test_思い出したことを先に頭へ渡す(config) -> None:
+    """頭に MCP で引かせると往復が1つ増える。よく使う分は先に渡す。"""
+    from jarvis.memory.recall import Memory
+
+    memory = Memory(config)
+    memory.remember("コーヒーはブラック", kind="preference")
+
+    driver = FakeDriver(config)
+    conn = db.connect(config.paths.db, embed_dim=config.memory.embed_dim)
+    pipeline = Pipeline(config, speak=lambda _t: None, driver=driver, conn=conn, memory=memory)
+
+    pipeline.handle("何か飲み物を用意して")
+    assert "コーヒーはブラック" in driver.prompts[0]
+    assert driver.prompts[0].endswith("何か飲み物を用意して")
+
+
+def test_思い出すものが無ければ指示だけを渡す(config) -> None:
+    """空の枠を付けて渡すと、その分だけサブスク枠を無駄に食う。"""
+    from jarvis.memory.recall import Memory
+
+    driver = FakeDriver(config)
+    conn = db.connect(config.paths.db, embed_dim=config.memory.embed_dim)
+    pipeline = Pipeline(
+        config, speak=lambda _t: None, driver=driver, conn=conn, memory=Memory(config)
+    )
+    pipeline.handle("何かして")
+    assert driver.prompts == ["何かして"]
+
+
+def test_思い出せなくても用事は進む(config) -> None:
+    class BrokenMemory:
+        def recall(self, _query):
+            raise RuntimeError("記憶が壊れています")
+
+    driver = FakeDriver(config)
+    conn = db.connect(config.paths.db, embed_dim=config.memory.embed_dim)
+    pipeline = Pipeline(
+        config, speak=lambda _t: None, driver=driver, conn=conn, memory=BrokenMemory()
+    )
+    assert pipeline.handle("何かして").used_claude
+    assert driver.prompts == ["何かして"]

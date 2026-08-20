@@ -144,8 +144,11 @@ class TmuxDriver(ClaudeDriver):
         """WSL 側の作業ディレクトリに、頭が要るものを置く。
 
         人格と出力の約束（CLAUDE.md）、フックの登録（settings.json）、
-        フック本体（stop_speak.py）の3つ。毎回上書きするので、
-        こちら側で直せば向こうにも反映される。
+        MCP の繋ぎ先（.mcp.json）、フック本体（stop_speak.py）の4つ。
+        毎回上書きするので、こちら側で直せば向こうにも反映される。
+
+        MCP の繋ぎ先は Windows 側の localhost を指す。WSL2 をミラーモードに
+        しておけば、そのまま通る。
         """
         workspace = self._remote_workspace
         reply_url = (
@@ -162,6 +165,18 @@ class TmuxDriver(ClaudeDriver):
             f"{workspace}/.claude/settings.json",
             json.dumps(settings, ensure_ascii=False, indent=2) + "\n",
         )
+        mcp = json.loads((assets_dir / "mcp.json").read_text(encoding="utf-8"))
+        servers = mcp.get("mcpServers", {})
+        for name, port in (
+            ("memory", self._config.memory.mcp_port),
+            ("hands", self._config.hands.listen_port),
+        ):
+            if name in servers:
+                servers[name]["url"] = f"http://{self._config.mouth.listen_host}:{port}/mcp"
+        self._write_remote(
+            f"{workspace}/.mcp.json", json.dumps(mcp, ensure_ascii=False, indent=2) + "\n"
+        )
+
         self._write_remote(
             f"{workspace}/.jarvis/stop_speak.py",
             (assets_dir.parent / "hooks" / "stop_speak.py").read_text(encoding="utf-8"),

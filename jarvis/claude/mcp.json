@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "memory": {
+      "type": "http",
+      "url": "http://127.0.0.1:8767/mcp"
+    },
+    "hands": {
+      "type": "http",
+      "url": "http://127.0.0.1:8765/mcp"
+    },
+    "google": {
+      "type": "http",
+      "url": "http://127.0.0.1:8768/mcp"
+    },
+    "browser": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--isolated"]
+    }
+  }
+}

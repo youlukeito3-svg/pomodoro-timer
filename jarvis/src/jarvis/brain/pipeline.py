@@ -9,7 +9,7 @@ from __future__ import annotations
 import threading
 import time
 from dataclasses import dataclass
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from ..config import Config
 from ..log import get_logger
@@ -18,6 +18,9 @@ from .budget import Budget
 from .claude_driver import ClaudeDriver, ClaudeUnavailable, create_driver
 from .local_skills import SkillResult
 from .router import Router
+
+if TYPE_CHECKING:
+    from ..memory.recall import Memory
 
 log = get_logger("頭")
 
@@ -35,8 +38,10 @@ class Pipeline:
     def __init__(
         self, config: Config, *, speak: Speak | None = None,
         driver: ClaudeDriver | None = None, conn: db.Connection | None = None,
+        memory: "Memory | None" = None,
     ) -> None:
         self._config = config
+        self._memory = memory
         self._speak: Speak = speak or (lambda text: print(f"[ジャービス] {text}"))
         self._conn = conn or db.connect(config.paths.db, embed_dim=config.memory.embed_dim)
         self._router = Router(config.brain.router)
@@ -112,9 +117,21 @@ class Pipeline:
     def build_prompt(self, heard: str) -> str:
         """頭に渡す文を組み立てる。
 
-        段2で、ここに思い出した記憶が足される。今は聞いた言葉そのまま。
+        思い出した記憶を先に付けておく。頭は MCP の `recall` でも記憶を
+        引けるが、毎回そこから始めさせると往復が1つ増える。よく使う分だけ
+        こちらで先に渡し、深く掘りたいときだけ頭に引かせる。
+
+        長くなりすぎないよう、ここで渡すのは短くまとめたものに限る。
+        指示が膨らむと、その分だけサブスク枠を余計に食う。
         """
-        return heard
+        if self._memory is None:
+            return heard
+        try:
+            context = self._memory.recall(heard).as_prompt()
+        except Exception as e:  # noqa: BLE001 - 思い出せなくても用事は進める
+            log.warning("思い出せませんでした", error=str(e))
+            return heard
+        return f"{context}\n\n{heard}" if context else heard
 
     # ------------------------------------------------------------ 補助
 

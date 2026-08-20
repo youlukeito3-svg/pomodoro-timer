@@ -54,5 +54,6 @@
       "Bash(rm -rf:*)",
       "Bash(shutdown:*)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true
 }

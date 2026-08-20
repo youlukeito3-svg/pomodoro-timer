@@ -103,6 +103,8 @@ class MemoryConfig(BaseModel):
     embed_dim: int = 1024
     top_k: int = 8
     autocommit_minutes: int = 30
+    mcp_host: str = "127.0.0.1"
+    mcp_port: int = 8767
 
 
 class HandsConfig(BaseModel):
