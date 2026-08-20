@@ -143,14 +143,16 @@ def check_brain(cfg: Config) -> list[Check]:
         out.append(Check("頭（Claude Code）", "ok", ver.splitlines()[0] if ver else "起動できます"))
 
     if cfg.brain.driver == "tmux":
-        code, _ = _run(prefix + ["tmux", "-V"], timeout=20)
+        code, detail = _run(prefix + ["tmux", "-V"], timeout=20)
         if code != 0:
-            out.append(
-                Check(
-                    "tmux", "fatal", "tmux がありません",
-                    "WSL で `sudo apt install tmux` を実行してください。",
-                )
+            # 前置きコマンド（wsl.exe）自体が無い場合と、その中に tmux が
+            # 無い場合とでは直し方が違う。取り違えると遠回りになる。
+            hint = (
+                "WSL で `sudo apt install tmux` を実行してください。"
+                if prefix and code != 127
+                else "jarvis.toml の wsl_prefix が正しいか確かめてください。"
             )
+            out.append(Check("tmux", "fatal", detail or "tmux がありません", hint))
         else:
             code, _ = _run(prefix + ["tmux", "has-session", "-t", cfg.brain.tmux_session], timeout=20)
             state = "常駐しています" if code == 0 else "まだ立っていません（起動時に作ります）"

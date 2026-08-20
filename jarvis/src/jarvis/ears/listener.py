@@ -21,10 +21,11 @@ log = get_logger("耳")
 
 
 class Listener:
-    def __init__(self, config: EarsConfig) -> None:
+    def __init__(self, config: EarsConfig, transcriber: Transcriber | None = None) -> None:
         self._config = config
         self._wake = WakeWord(config.wake_model, config.wake_threshold)
-        self._stt = Transcriber(config.stt)
+        # 聞き取りモデルは重い。外出先からの音声メモとも1つを分け合う。
+        self._stt = transcriber or Transcriber(config.stt)
         self._frames: queue.Queue = queue.Queue(maxsize=200)
         self._stop = threading.Event()
         # 呼びかけに気づいた瞬間に鳴らす合図。これが無いと、

@@ -16,6 +16,7 @@ from .brain.claude_driver import ClaudeUnavailable
 from .brain.pipeline import Pipeline
 from .brain.scheduler import Scheduler
 from .config import Config
+from .ears.stt import Transcriber
 from .log import get_logger
 from .mouth.speech_text import extract_speech
 from .mcp.hands import Hands
@@ -43,6 +44,9 @@ class Supervisor:
         self._stopping = threading.Event()
         self._threads: list[threading.Thread] = []
         self._scheduler = Scheduler()
+        # 聞き取りモデルは重いので、耳と外出先で1つを分け合う。ここでは器を
+        # 作るだけで、モデルの読み込みは最初に使うときまで起きない。
+        self._transcriber = Transcriber(config.ears.stt)
 
     # ---------------------------------------------------------------- 起動
 
@@ -63,6 +67,8 @@ class Supervisor:
         self._spawn("定時の仕事", self._run_scheduler)
         if self._hands is not None:
             self._spawn("手の窓口", self._serve_hands)
+        if self._config.remote.enabled:
+            self._spawn("外出先", self._serve_remote)
         if self._config.memory.autocommit_minutes > 0:
             self._spawn("記憶の保存", self._autocommit_memory)
 
@@ -114,6 +120,11 @@ class Supervisor:
         from .mcp.hands_server import create_server
 
         create_server(self._config, self._hands).run(transport="streamable-http")
+
+    def _serve_remote(self) -> None:
+        from .remote.discord_bot import DiscordBridge
+
+        DiscordBridge(self._config, self._pipeline, self._transcriber).run()
 
     def _serve_google(self) -> None:
         from .mcp.google_server import create_server
@@ -201,7 +212,7 @@ class Supervisor:
     def _listen(self) -> None:
         from .ears.listener import Listener
 
-        listener = Listener(self._config.ears)
+        listener = Listener(self._config.ears, self._transcriber)
         listener.on_wake(lambda: self._voice.say("はい。", truncate=False))
         listener.warmup()
 

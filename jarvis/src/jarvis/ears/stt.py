@@ -44,6 +44,19 @@ class Transcriber:
         """最初の呼びかけで待たされないよう、先に読み込んでおく。"""
         self._ensure_model()
 
+    def transcribe_file(self, path) -> str:
+        """音声ファイルを書き起こす。外出先から届く音声メモに使う。
+
+        faster-whisper が中で復号するので、ogg でも m4a でもそのまま渡せる。
+        """
+        model = self._ensure_model()
+        segments, _info = model.transcribe(
+            str(path), language=self._config.language, beam_size=5, vad_filter=True,
+        )
+        text = "".join(s.text for s in segments).strip()
+        log.info("音声メモを聞き取りました", text=text)
+        return "" if text in _NOISE else text
+
     def transcribe(self, audio) -> str:
         """int16 のサンプル列を受け取り、書き起こしを返す。"""
         import numpy as np
