@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 import secrets
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -134,13 +135,16 @@ def _shorten(text: str, limit: int = 60) -> str:
 
 # ---------------------------------------------------------------- 確認の保留
 
-@dataclass(frozen=True)
+@dataclass
 class Pending:
     token: str
     question: str
     tool: str
     args: dict
     expires_at: float
+    # 返事が届いたことを、待っている側へ知らせるための合図。
+    answered: threading.Event = field(default_factory=threading.Event)
+    agreed: bool | None = None
 
 
 class ConfirmStore:
@@ -166,17 +170,56 @@ class ConfirmStore:
         return p
 
     def confirm(self, token: str, now: float | None = None) -> Pending | None:
+        """承諾された操作を取り出す。取り出した操作は待ち行列から消える。"""
         now = time.monotonic() if now is None else now
         self._sweep(now)
-        return self._pending.pop(token, None)
+        pending = self._pending.pop(token, None)
+        if pending is not None:
+            pending.agreed = True
+            pending.answered.set()
+        return pending
+
+    def answer(self, token: str, agreed: bool, now: float | None = None) -> Pending | None:
+        """はい／いいえを届ける。待っている側の `wait_for_answer` が返る。
+
+        ここでは待ち行列から取り除かない。取り除くのは待っている側で、
+        そうしないと、返事が先に届いたときに待ち手が取り逃がす。
+        """
+        now = time.monotonic() if now is None else now
+        self._sweep(now)
+        pending = self._pending.get(token)
+        if pending is None:
+            return None
+        pending.agreed = agreed
+        pending.answered.set()
+        return pending
+
+    def wait_for_answer(self, token: str, timeout: float) -> bool | None:
+        """返事が届くまで待つ。届かなければ None（＝実行しない）。
+
+        待つのは道具を呼んだ側で、返事を届けるのは耳の側。別のスレッドに
+        なるので、合図はイベントで渡す。返事が先に届いていた場合も、
+        イベントは立ったままなので取り逃がさない。
+        """
+        pending = self._pending.get(token)
+        if pending is None:
+            return None
+        answered = pending.answered.wait(timeout)
+        self._pending.pop(token, None)
+        return pending.agreed if answered else None
 
     def latest(self, now: float | None = None) -> Pending | None:
-        """token を言わずに「はい」と答えられるように、直近の1件を返す。"""
+        """token を言わずに「はい」と答えられるように、直近の1件を返す。
+
+        既に返事が届いたものは対象にしない。同じ「はい」で2つの操作が
+        動いてしまうのを防ぐため。
+        """
         now = time.monotonic() if now is None else now
         self._sweep(now)
-        if not self._pending:
+        waiting = [p for p in self._pending.values() if not p.answered.is_set()]
+        if not waiting:
             return None
-        return max(self._pending.values(), key=lambda p: p.expires_at)
+        return max(waiting, key=lambda p: p.expires_at)
 
     def cancel_all(self) -> int:
         n = len(self._pending)

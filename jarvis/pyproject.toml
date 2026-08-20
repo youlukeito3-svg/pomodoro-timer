@@ -29,8 +29,11 @@ mouth = [
 # 手（Windows 専用）。
 hands = [
     "pyautogui>=0.9.54",
-    "pywinauto>=0.6.8; sys_platform == 'win32'",
     "pygetwindow>=0.0.9",
+    "pyperclip>=1.9",
+    "psutil>=6.0",
+    "pywin32>=308; sys_platform == 'win32'",
+    "pywinauto>=0.6.8; sys_platform == 'win32'",
     "Pillow>=11.0",
     "keyboard>=0.13.5",
     "mcp>=1.2",

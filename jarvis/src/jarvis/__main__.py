@@ -10,6 +10,8 @@
     python -m jarvis recall Q   記憶から思い出せるものを見る
     python -m jarvis reindex    Markdown の記憶を索引に入れ直す
     python -m jarvis sync       記憶を非公開リポへ保存する
+    python -m jarvis serve-memory  記憶の MCP サーバだけを動かす
+    python -m jarvis serve-hands   手の MCP サーバだけを動かす
     python -m jarvis panic      すべての操作を止める
     python -m jarvis resume     止めた操作を再開できるようにする
 
@@ -126,6 +128,20 @@ def cmd_sync(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve_memory(_args: argparse.Namespace) -> int:
+    from .mcp.memory_server import serve
+
+    serve(_boot())
+    return 0
+
+
+def cmd_serve_hands(_args: argparse.Namespace) -> int:
+    from .mcp.hands_server import serve
+
+    serve(_boot())
+    return 0
+
+
 def cmd_budget(_args: argparse.Namespace) -> int:
     from .brain.budget import Budget
     from .memory import db
@@ -177,6 +193,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("test-ears", help="聞き取りだけ動かす").set_defaults(func=cmd_test_ears)
     sub.add_parser("reindex", help="記憶を索引に入れ直す").set_defaults(func=cmd_reindex)
     sub.add_parser("sync", help="記憶を非公開リポへ保存する").set_defaults(func=cmd_sync)
+    sub.add_parser("serve-memory", help="記憶の MCP サーバ").set_defaults(func=cmd_serve_memory)
+    sub.add_parser("serve-hands", help="手の MCP サーバ").set_defaults(func=cmd_serve_hands)
     sub.add_parser("run", help="通しで起動する").set_defaults(func=cmd_run)
 
     say = sub.add_parser("say", help="読み上げてみる")

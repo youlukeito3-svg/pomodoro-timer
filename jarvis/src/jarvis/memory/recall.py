@@ -95,6 +95,11 @@ class Memory:
         self._vault.ensure()
 
     @property
+    def conn(self) -> db.Connection:
+        """同じ帳簿を手や予定にも使わせる。記録が二重の場所に散らない。"""
+        return self._conn
+
+    @property
     def vault(self) -> Vault:
         return self._vault
 

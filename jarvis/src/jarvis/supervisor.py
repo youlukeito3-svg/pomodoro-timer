@@ -16,6 +16,7 @@ from .brain.pipeline import Pipeline
 from .config import Config
 from .log import get_logger
 from .mouth.speech_text import extract_speech
+from .mcp.hands import Hands
 from .memory.recall import Memory
 from .mouth.tts import Voice
 from .safety.panic import PanicSwitch
@@ -31,8 +32,12 @@ class Supervisor:
         self._voice = Voice(config.mouth)
         self._panic = PanicSwitch(config.paths.data)
         self._memory = Memory(config)
+        self._hands = self._build_hands()
         self._pipeline = Pipeline(config, speak=self._voice.say, memory=self._memory)
         self._pipeline.on_stop = self._voice.stop
+        if self._hands is not None:
+            # 「はい」「いいえ」は耳から入って、手の待ち行列に届く。
+            self._pipeline.confirm_handler = self._hands.answer_confirmation
         self._stopping = threading.Event()
         self._threads: list[threading.Thread] = []
 
@@ -51,6 +56,8 @@ class Supervisor:
         self._spawn("見張り", self._watch_late_replies)
         self._spawn("停止キー", self._watch_panic_hotkey)
         self._spawn("記憶の窓口", self._serve_memory)
+        if self._hands is not None:
+            self._spawn("手の窓口", self._serve_hands)
         if self._config.memory.autocommit_minutes > 0:
             self._spawn("記憶の保存", self._autocommit_memory)
 
@@ -84,6 +91,24 @@ class Supervisor:
         from .mouth.server import serve
 
         serve(self._config, self._voice)
+
+    def _build_hands(self) -> Hands | None:
+        from .mcp.windows import create_desktop
+
+        try:
+            return Hands(
+                self._config, desktop=create_desktop(),
+                conn=self._memory.conn,
+                ask_voice=self._voice.say,
+            )
+        except (RuntimeError, ImportError) as e:
+            log.warning("PC の操作は使えません", error=str(e))
+            return None
+
+    def _serve_hands(self) -> None:
+        from .mcp.hands_server import create_server
+
+        create_server(self._config, self._hands).run(transport="streamable-http")
 
     def _serve_memory(self) -> None:
         from .mcp.memory_server import create_server
