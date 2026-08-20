@@ -11,8 +11,10 @@ import threading
 import time
 from pathlib import Path
 
+from .brain.briefing import compose as compose_briefing
 from .brain.claude_driver import ClaudeUnavailable
 from .brain.pipeline import Pipeline
+from .brain.scheduler import Scheduler
 from .config import Config
 from .log import get_logger
 from .mouth.speech_text import extract_speech
@@ -40,6 +42,7 @@ class Supervisor:
             self._pipeline.confirm_handler = self._hands.answer_confirmation
         self._stopping = threading.Event()
         self._threads: list[threading.Thread] = []
+        self._scheduler = Scheduler()
 
     # ---------------------------------------------------------------- 起動
 
@@ -56,6 +59,8 @@ class Supervisor:
         self._spawn("見張り", self._watch_late_replies)
         self._spawn("停止キー", self._watch_panic_hotkey)
         self._spawn("記憶の窓口", self._serve_memory)
+        self._spawn("予定の窓口", self._serve_google)
+        self._spawn("定時の仕事", self._run_scheduler)
         if self._hands is not None:
             self._spawn("手の窓口", self._serve_hands)
         if self._config.memory.autocommit_minutes > 0:
@@ -109,6 +114,26 @@ class Supervisor:
         from .mcp.hands_server import create_server
 
         create_server(self._config, self._hands).run(transport="streamable-http")
+
+    def _serve_google(self) -> None:
+        from .mcp.google_server import create_server
+
+        create_server(self._config).run(transport="streamable-http")
+
+    def _run_scheduler(self) -> None:
+        """定時の仕事。毎朝の読み上げには Claude を使わない。
+
+        毎日必ず走るものに枠を使うと、肝心なときに残っていない。
+        """
+        from .mcp.google_server import GoogleDesk
+
+        desk = GoogleDesk(self._config)
+
+        def morning() -> None:
+            self._voice.say(compose_briefing(self._config, desk), truncate=False)
+
+        if self._scheduler.daily("朝の読み上げ", self._config.google.morning_brief_at, morning):
+            self._scheduler.run_forever()
 
     def _serve_memory(self) -> None:
         from .mcp.memory_server import create_server
@@ -204,6 +229,7 @@ class Supervisor:
 
     def shutdown(self) -> None:
         self._stopping.set()
+        self._scheduler.stop()
         try:
             self._memory.sync()
         except Exception as e:  # noqa: BLE001 - 終了処理で落ちない

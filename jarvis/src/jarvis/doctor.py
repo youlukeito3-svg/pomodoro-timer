@@ -264,6 +264,43 @@ def check_memory(cfg: Config) -> list[Check]:
     return [Check("記憶の検索", "ok", "sqlite-vec が使えます")]
 
 
+def check_google(cfg: Config) -> list[Check]:
+    if not _importable("googleapiclient"):
+        return [
+            Check(
+                "予定（Google）", "warn", "google-api-python-client が入っていません",
+                'pip install -e ".[google]" を実行してください。',
+            )
+        ]
+    credentials = cfg.paths.data / cfg.google.credentials_file
+    token = cfg.paths.data / cfg.google.token_file
+    if not credentials.exists():
+        return [
+            Check(
+                "予定（Google）", "warn", f"{credentials} がありません",
+                "README の「Google と繋ぐ」の手順で用意してください。",
+            )
+        ]
+    if not token.exists():
+        return [
+            Check(
+                "予定（Google）", "warn", "まだ許可を取っていません",
+                "`python -m jarvis brief` を一度実行すると、ブラウザで許可を求めます。",
+            )
+        ]
+    from .brain.scheduler import parse_hhmm
+
+    if cfg.google.morning_brief_at and parse_hhmm(cfg.google.morning_brief_at) is None:
+        return [
+            Check(
+                "予定（Google）", "warn",
+                f"朝の読み上げの時刻が読めません: {cfg.google.morning_brief_at}",
+                '"07:00" の形で書いてください。',
+            )
+        ]
+    return [Check("予定（Google）", "ok", f"繋がっています（朝の読み上げ {cfg.google.morning_brief_at or 'なし'}）")]
+
+
 def check_hands(cfg: Config) -> list[Check]:
     if os.name != "nt":
         return [Check("手（PC 操作）", "warn", "Windows 以外なので PC 操作は無効です")]
@@ -298,6 +335,7 @@ def run_all(cfg: Config | None = None) -> list[Check]:
     checks += check_mouth(cfg)
     checks += check_ears(cfg)
     checks += check_memory(cfg)
+    checks += check_google(cfg)
     checks += check_hands(cfg)
     return checks
 

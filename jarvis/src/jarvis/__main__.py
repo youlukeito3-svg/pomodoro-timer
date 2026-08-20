@@ -12,6 +12,8 @@
     python -m jarvis sync       記憶を非公開リポへ保存する
     python -m jarvis serve-memory  記憶の MCP サーバだけを動かす
     python -m jarvis serve-hands   手の MCP サーバだけを動かす
+    python -m jarvis serve-google  予定の MCP サーバだけを動かす
+    python -m jarvis brief         毎朝の読み上げを今すぐ試す
     python -m jarvis panic      すべての操作を止める
     python -m jarvis resume     止めた操作を再開できるようにする
 
@@ -142,6 +144,26 @@ def cmd_serve_hands(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve_google(_args: argparse.Namespace) -> int:
+    from .mcp.google_server import serve
+
+    serve(_boot())
+    return 0
+
+
+def cmd_brief(_args: argparse.Namespace) -> int:
+    from .brain.briefing import compose
+    from .mcp.google_server import GoogleDesk
+
+    cfg = _boot()
+    text = compose(cfg, GoogleDesk(cfg))
+    print(text)
+    from .mouth.tts import Voice
+
+    Voice(cfg.mouth).say(text, truncate=False)
+    return 0
+
+
 def cmd_budget(_args: argparse.Namespace) -> int:
     from .brain.budget import Budget
     from .memory import db
@@ -195,6 +217,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("sync", help="記憶を非公開リポへ保存する").set_defaults(func=cmd_sync)
     sub.add_parser("serve-memory", help="記憶の MCP サーバ").set_defaults(func=cmd_serve_memory)
     sub.add_parser("serve-hands", help="手の MCP サーバ").set_defaults(func=cmd_serve_hands)
+    sub.add_parser("serve-google", help="予定の MCP サーバ").set_defaults(func=cmd_serve_google)
+    sub.add_parser("brief", help="毎朝の読み上げを試す").set_defaults(func=cmd_brief)
     sub.add_parser("run", help="通しで起動する").set_defaults(func=cmd_run)
 
     say = sub.add_parser("say", help="読み上げてみる")

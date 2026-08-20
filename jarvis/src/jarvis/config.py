@@ -115,6 +115,19 @@ class HandsConfig(BaseModel):
     panic_hotkey: str = "ctrl+alt+shift+j"
 
 
+class GoogleConfig(BaseModel):
+    mcp_host: str = "127.0.0.1"
+    mcp_port: int = 8768
+    calendar_id: str = "primary"
+    # 認証情報の置き場所。data_dir からの相対。
+    credentials_file: str = "google/credentials.json"
+    token_file: str = "google/token.json"
+    # 毎朝の読み上げ。空にすると読み上げない。
+    morning_brief_at: str = "07:00"
+    # 予定を入れるとき、移動時間としてこれだけ空いているかを見る。
+    travel_minutes: int = 30
+
+
 class RemoteConfig(BaseModel):
     enabled: bool = False
     channel_ids: list[int] = Field(default_factory=list)
@@ -132,6 +145,7 @@ class Config(BaseModel):
     brain: BrainConfig = Field(default_factory=BrainConfig)
     memory: MemoryConfig = Field(default_factory=MemoryConfig)
     hands: HandsConfig = Field(default_factory=HandsConfig)
+    google: GoogleConfig = Field(default_factory=GoogleConfig)
     remote: RemoteConfig = Field(default_factory=RemoteConfig)
 
     allowlist_path: Path = DEFAULT_ALLOWLIST

@@ -170,6 +170,7 @@ class TmuxDriver(ClaudeDriver):
         for name, port in (
             ("memory", self._config.memory.mcp_port),
             ("hands", self._config.hands.listen_port),
+            ("google", self._config.google.mcp_port),
         ):
             if name in servers:
                 servers[name]["url"] = f"http://{self._config.mouth.listen_host}:{port}/mcp"

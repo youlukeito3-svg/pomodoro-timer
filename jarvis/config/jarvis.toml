@@ -90,6 +90,19 @@ confirm_ttl_sec = 60
 # 緊急停止のホットキー。
 panic_hotkey = "ctrl+alt+shift+j"
 
+[google]
+# Calendar / Gmail / Drive の MCP サーバ。
+mcp_host = "127.0.0.1"
+mcp_port = 8768
+calendar_id = "primary"
+# 認証情報の置き場所（data_dir からの相対）。README の手順で用意する。
+credentials_file = "google/credentials.json"
+token_file = "google/token.json"
+# 毎朝の読み上げ。空文字にすると読み上げない。
+morning_brief_at = "07:00"
+# 予定を入れるとき、移動時間としてこれだけ空いているかを見る。
+travel_minutes = 30
+
 [remote]
 # 外出先からの指示。トークンは環境変数 JARVIS_DISCORD_TOKEN に置く。
 enabled = false
