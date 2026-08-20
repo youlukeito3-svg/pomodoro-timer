@@ -1,0 +1,165 @@
+"""ジャービスの入口。
+
+    python -m jarvis            通しで起動する（耳・口・頭・手）
+    python -m jarvis doctor     環境を診断する
+    python -m jarvis devices    マイクとスピーカーの一覧を出す
+    python -m jarvis say TEXT   読み上げてみる
+    python -m jarvis ask TEXT   頭に投げて応答を見る（声を使わない）
+    python -m jarvis test-ears  聞き取りだけ動かす
+    python -m jarvis budget     Claude を今日何回呼んだかを見る
+    python -m jarvis panic      すべての操作を止める
+    python -m jarvis resume     止めた操作を再開できるようにする
+
+各コマンドは必要なものだけを import する。耳の部品が入っていない環境でも
+doctor は動く、という状態を保つため。
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+
+from .config import get_config
+from .log import get_logger, setup_logging
+
+
+def _boot(*, require_clean: bool = True):
+    """設定を読み、ログを立て、課金経路がないことを確かめる。"""
+    cfg = get_config()
+    cfg.ensure_dirs()
+    setup_logging(cfg.paths.logs)
+
+    from .doctor import blocking_failures, check_billing_paths, format_report
+
+    failures = blocking_failures(check_billing_paths())
+    if failures and require_clean:
+        print(format_report(failures), file=sys.stderr)
+        raise SystemExit(2)
+    return cfg
+
+
+# ---------------------------------------------------------------- 各コマンド
+
+def cmd_doctor(_args: argparse.Namespace) -> int:
+    from .doctor import blocking_failures, format_report, run_all
+
+    cfg = _boot(require_clean=False)
+    checks = run_all(cfg)
+    print(format_report(checks))
+    return 1 if blocking_failures(checks) else 0
+
+
+def cmd_devices(_args: argparse.Namespace) -> int:
+    try:
+        import sounddevice as sd
+    except ImportError:
+        print('耳の部品が入っていません。pip install -e ".[ears]" を実行してください。')
+        return 1
+    print(sd.query_devices())
+    return 0
+
+
+def cmd_say(args: argparse.Namespace) -> int:
+    from .mouth.tts import Voice
+
+    cfg = _boot()
+    Voice(cfg.mouth).say(args.text)
+    return 0
+
+
+def cmd_ask(args: argparse.Namespace) -> int:
+    from .brain.pipeline import Pipeline
+
+    cfg = _boot()
+    pipeline = Pipeline(cfg)
+    reply = pipeline.handle(args.text, source="cli")
+    print(reply.text)
+    return 0
+
+
+def cmd_test_ears(_args: argparse.Namespace) -> int:
+    from .ears.listener import Listener
+
+    cfg = _boot()
+    log = get_logger("耳")
+    listener = Listener(cfg.ears)
+    log.info("「ジャービス」と呼びかけてください。Ctrl+C で終了します。")
+    try:
+        for heard in listener.listen_forever():
+            print(f"→ {heard}")
+    except KeyboardInterrupt:
+        pass
+    return 0
+
+
+def cmd_budget(_args: argparse.Namespace) -> int:
+    from .brain.budget import Budget
+    from .memory import db
+
+    cfg = _boot(require_clean=False)
+    conn = db.connect(cfg.paths.db, embed_dim=cfg.memory.embed_dim)
+    status = Budget(conn, cfg.brain.budget).status()
+    print(status.describe())
+    print(f"残り 今日 {status.remaining_today} 回 / 今週 {status.remaining_this_week} 回")
+    return 0
+
+
+def cmd_panic(_args: argparse.Namespace) -> int:
+    from .safety.panic import PanicSwitch
+
+    cfg = _boot(require_clean=False)
+    PanicSwitch(cfg.paths.data).engage("コマンドから停止")
+    print("すべての操作を止めました。`python -m jarvis resume` で戻ります。")
+    return 0
+
+
+def cmd_resume(_args: argparse.Namespace) -> int:
+    from .safety.panic import PanicSwitch
+
+    cfg = _boot(require_clean=False)
+    PanicSwitch(cfg.paths.data).release()
+    print("操作を再開できるようにしました。")
+    return 0
+
+
+def cmd_run(_args: argparse.Namespace) -> int:
+    from .supervisor import Supervisor
+
+    cfg = _boot()
+    return Supervisor(cfg).run()
+
+
+# ---------------------------------------------------------------- 引数
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="jarvis", description="声で動くフルアシスタント")
+    sub = p.add_subparsers(dest="command")
+
+    sub.add_parser("doctor", help="環境を診断する").set_defaults(func=cmd_doctor)
+    sub.add_parser("devices", help="マイクとスピーカーの一覧").set_defaults(func=cmd_devices)
+    sub.add_parser("budget", help="Claude の呼び出し回数").set_defaults(func=cmd_budget)
+    sub.add_parser("panic", help="すべての操作を止める").set_defaults(func=cmd_panic)
+    sub.add_parser("resume", help="操作を再開できるようにする").set_defaults(func=cmd_resume)
+    sub.add_parser("test-ears", help="聞き取りだけ動かす").set_defaults(func=cmd_test_ears)
+    sub.add_parser("run", help="通しで起動する").set_defaults(func=cmd_run)
+
+    say = sub.add_parser("say", help="読み上げてみる")
+    say.add_argument("text")
+    say.set_defaults(func=cmd_say)
+
+    ask = sub.add_parser("ask", help="頭に投げて応答を見る")
+    ask.add_argument("text")
+    ask.set_defaults(func=cmd_ask)
+
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    func = getattr(args, "func", cmd_run)
+    return func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

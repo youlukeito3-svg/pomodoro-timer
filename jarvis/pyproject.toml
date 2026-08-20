@@ -1,0 +1,71 @@
+[project]
+name = "jarvis"
+version = "0.1.0"
+description = "声で呼びかけると Claude Code が動く、常駐フルアシスタント"
+requires-python = ">=3.11"
+
+# 中核。これだけで doctor / say / ask / テストは動く。
+dependencies = [
+    "pydantic>=2.9",
+    "httpx>=0.27",
+    "pyyaml>=6.0",
+    "structlog>=24.4",
+]
+
+[project.optional-dependencies]
+# 耳。GPU 前提の重い依存はここに隔離してある。
+ears = [
+    "sounddevice>=0.5",
+    "numpy>=1.26",
+    "openwakeword>=0.6",
+    "faster-whisper>=1.1",
+    "onnxruntime>=1.20",
+]
+# 口とサーバ。
+mouth = [
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+]
+# 手（Windows 専用）。
+hands = [
+    "pyautogui>=0.9.54",
+    "pywinauto>=0.6.8; sys_platform == 'win32'",
+    "pygetwindow>=0.0.9",
+    "Pillow>=11.0",
+    "keyboard>=0.13.5",
+    "mcp>=1.2",
+]
+# 記憶。
+memory = [
+    "sqlite-vec>=0.1.6",
+    "mcp>=1.2",
+]
+# Google 連携。
+google = [
+    "google-api-python-client>=2.150",
+    "google-auth-oauthlib>=1.2",
+    "mcp>=1.2",
+]
+# 外出先から。
+remote = [
+    "discord.py>=2.4",
+]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+]
+
+[project.scripts]
+jarvis = "jarvis.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jarvis"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"

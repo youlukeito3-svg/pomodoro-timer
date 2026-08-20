@@ -1,0 +1,96 @@
+# ジャービスの設定。ここを書き換えるだけで構成部品を差し替えられるようにしてある。
+# 秘密（Discord のトークンなど）はここに書かず、環境変数か .env に置く。
+
+[paths]
+# 記憶の置き場所。非公開の GitHub リポにする（README の手順を参照）。
+data_dir = "~/jarvis-data"
+# 頭（Claude Code）が作業するディレクトリ。WSL 側のパス。
+workspace = "~/jarvis-workspace"
+
+[ears]
+# ウェイクワード。openWakeWord の学習済みモデル名。
+wake_model = "hey_jarvis_v0.1"
+# 0〜1。上げると誤検知が減り、呼びかけを取りこぼしやすくなる。
+wake_threshold = 0.5
+# マイク。この行をコメントのままにすると OS の既定入力を使う。`jarvis devices` で一覧が出る。
+# input_device = 1
+sample_rate = 16000
+# 発話の切り出し。この長さだけ無音が続いたら「言い終わった」とみなす。
+silence_ms = 700
+# 1回の指示の上限。これを超えたら強制的に切る。
+max_utterance_sec = 30.0
+
+[ears.stt]
+# NVIDIA GPU 前提。GPU が無い環境では device = "cpu", compute_type = "int8"。
+model = "large-v3-turbo"
+device = "cuda"
+compute_type = "float16"
+language = "ja"
+
+[mouth]
+# AivisSpeech Engine。VOICEVOX も同じ API なので URL を差し替えるだけで切り替わる。
+#   AivisSpeech : http://127.0.0.1:10101
+#   VOICEVOX    : http://127.0.0.1:50021
+engine_url = "http://127.0.0.1:10101"
+speaker_id = 888753760
+speed = 1.1
+# 読み上げサーバ。Claude Code の Stop フックがここを叩く。
+listen_host = "127.0.0.1"
+listen_port = 8766
+# 1回の読み上げの上限文字数。これを超える分は読まずテキストで残す。
+max_speak_chars = 300
+
+[brain]
+# 頭の駆動方式。
+#   tmux     … 常駐する対話セッションに流し込む（既定・サブスク枠が確実）
+#   headless … claude -p を都度起動する（将来 API 課金枠に移る可能性がある）
+driver = "tmux"
+tmux_session = "jarvis"
+claude_bin = "claude"
+# WSL 越しに tmux を叩くための前置きコマンド。Linux で直接動かすなら空配列。
+wsl_prefix = ["wsl.exe", "-d", "Ubuntu", "--"]
+# 応答を待つ上限。
+response_timeout_sec = 300
+
+[brain.router]
+# 振り分け用のローカル小型 LLM。ここが Claude の消費量を実質的に決める。
+ollama_url = "http://127.0.0.1:11434"
+model = "qwen3:4b"
+timeout_sec = 8.0
+# 分類に迷ったら Claude に回す（安全側）。false にするとローカル処理で打ち切る。
+fallback_to_claude = true
+
+[brain.budget]
+# サブスク枠を使い切らないための自衛。上限に達したら音声で断る。
+max_calls_per_day = 120
+max_calls_per_week = 500
+# 上限に達したときの返答。
+refusal_message = "今日はもう頭を使い切りました。明日また声をかけてください。"
+
+[memory]
+# 埋め込みもローカルで作る。API 課金は発生しない。
+embed_model = "bge-m3"
+embed_dim = 1024
+# recall が返す件数。
+top_k = 8
+# 記憶を非公開リポへ自動コミットする間隔（分）。0 で無効。
+autocommit_minutes = 30
+
+[hands]
+# Windows 操作の MCP サーバ。WSL の Claude Code からここへ繋ぐ。
+listen_host = "127.0.0.1"
+listen_port = 8765
+# 操作のたびにスクリーンショットを残す。
+screenshot_on_action = true
+# 確認トークンの有効期間（秒）。
+confirm_ttl_sec = 60
+# 緊急停止のホットキー。
+panic_hotkey = "ctrl+alt+shift+j"
+
+[remote]
+# 外出先からの指示。トークンは環境変数 JARVIS_DISCORD_TOKEN に置く。
+enabled = false
+# 反応するチャンネル ID。空なら DM のみ。
+channel_ids = []
+# 自分以外の発言を無視するための Discord ユーザー ID。
+owner_user_id = 0

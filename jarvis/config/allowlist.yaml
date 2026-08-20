@@ -1,0 +1,78 @@
+# ジャービスが PC を操作してよい範囲。
+#
+# 前面ウィンドウのプロセス名がこの allow に無ければ、マウスもキーボードも動かさない。
+# 「危険な操作」に当たるものは、allow の中でも実行せず、まず声で確認を取る。
+
+# 操作を許すアプリ（実行ファイル名。大文字小文字は区別しない）
+allow:
+  - chrome.exe
+  - msedge.exe
+  - firefox.exe
+  - Code.exe             # VS Code
+  - WindowsTerminal.exe
+  - explorer.exe
+  - notepad.exe
+  - Obsidian.exe
+
+# 名前が allow に入っていても、絶対に触らせないもの。allow より強い。
+deny:
+  - mstsc.exe            # リモートデスクトップ
+  - regedit.exe
+  - mmc.exe
+  - taskmgr.exe
+  - powershell.exe       # 操作は MCP のコマンド経由に限る
+  - cmd.exe
+  - LsaIso.exe
+  - CredentialUIBroker.exe
+
+# 「危険な操作」の判定。ここに当たったら実行せず確認トークンを返す。
+confirm_required:
+  # クリック先の要素名・ボタン名に含まれていたら確認する語
+  ui_text:
+    - 送信
+    - 送る
+    - 購入
+    - 支払
+    - 注文
+    - 確定
+    - 削除
+    - 消去
+    - 退会
+    - 解約
+    - 公開
+    - 投稿
+    - send
+    - submit
+    - buy
+    - purchase
+    - pay
+    - checkout
+    - delete
+    - remove
+    - publish
+    - post
+  # 入力しようとしているテキストがこれに当たったら確認する
+  typing:
+    # パスワード欄・クレジットカード番号らしき入力は常に確認
+    - '(?i)password|passwd|パスワード'
+    - '\b(?:\d[ -]*?){13,19}\b'
+  # シェル経由の実行で確認が要るもの
+  shell:
+    - '(?i)\brm\b\s+(-[a-z]*\s+)*-?[rf]'
+    - '(?i)\bdel\b\s+/[sqf]'
+    - '(?i)Remove-Item.*-Recurse'
+    - '(?i)\bformat\b\s+[a-z]:'
+    - '(?i)\bgit\s+push\b.*--force'
+    - '(?i)\bshutdown\b|\brestart-computer\b'
+    - '(?i)\bcurl\b.*\|\s*(ba)?sh'
+
+# ここに載っている語がウィンドウタイトルに出ていたら、
+# allow のアプリでも操作を止める（銀行・決済画面など）
+title_deny:
+  - オンラインバンキング
+  - ネットバンキング
+  - パスワードの変更
+  - お支払い方法
+  - クレジットカード
+  - online banking
+  - payment method

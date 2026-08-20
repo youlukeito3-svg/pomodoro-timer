@@ -43,3 +43,10 @@ next-env.d.ts
 # tesseract の実行資産はビルド時に node_modules から配置する
 /public/tesseract/
 /public/fonts/
+
+# jarvis（Python の生成物。記憶データは ~/jarvis-data に置くのでここには入らない）
+__pycache__/
+*.py[cod]
+.pytest_cache/
+/jarvis/.venv/
+/jarvis/*.egg-info/
