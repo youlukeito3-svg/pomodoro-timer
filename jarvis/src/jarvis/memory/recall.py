@@ -24,6 +24,17 @@ log = get_logger("記憶")
 # 1つの断片の目安。長すぎると検索が粗くなり、短すぎると文脈が切れる。
 CHUNK_CHARS = 400
 
+# 文書の先頭に置かれる YAML frontmatter。Obsidian が tags や status を
+# ここに書く。`status: 進行中` のようなメタ情報を本文として取り込むと、
+# 思い出す内容がそれで濁るので落とす。先頭にあるものだけが対象で、
+# 途中の `---`（区切り線）には触らない。
+_FRONTMATTER = re.compile(r"\A---[ \t]*\r?\n.*?\r?\n---[ \t]*(?:\r?\n|\Z)", re.DOTALL)
+
+
+def strip_frontmatter(text: str) -> str:
+    """先頭の YAML frontmatter を落とす。無ければそのまま返す。"""
+    return _FRONTMATTER.sub("", text, count=1)
+
 
 def split_markdown(text: str, chunk_chars: int = CHUNK_CHARS) -> list[str]:
     """Markdown を、意味の切れ目で断片に割る。
@@ -36,7 +47,7 @@ def split_markdown(text: str, chunk_chars: int = CHUNK_CHARS) -> list[str]:
     heading = ""
     length = 0
 
-    for block in re.split(r"\n\s*\n", text):
+    for block in re.split(r"\n\s*\n", strip_frontmatter(text)):
         block = block.strip()
         if not block:
             continue
@@ -110,6 +121,9 @@ class Memory:
     # ---------------------------------------------------------------- 思い出す
 
     def recall(self, query: str, *, top_k: int | None = None) -> Recollection:
+        # 人が手で直したノートを先に取り込む。Obsidian で書き換えた内容が
+        # 次の一言から効くようにするため。変わっていなければ何も起きない。
+        self.refresh()
         top_k = top_k or self._config.memory.top_k
         facts = [f["text"] for f in db.active_facts(self._conn, limit=12)]
 
@@ -147,30 +161,75 @@ class Memory:
 
     # ---------------------------------------------------------------- 索引
 
+    def _ref_for(self, path: Path) -> str:
+        return (
+            str(path.relative_to(self._vault.root))
+            if path.is_relative_to(self._vault.root)
+            else str(path)
+        )
+
     def index_file(self, path: Path) -> int:
         """1つの Markdown を索引に入れ直す。"""
         try:
             text = path.read_text(encoding="utf-8")
+            stat = path.stat()
         except OSError as e:
             log.warning("読めませんでした", path=str(path), error=str(e))
             return 0
 
-        ref = str(path.relative_to(self._vault.root)) if path.is_relative_to(self._vault.root) else str(path)
+        ref = self._ref_for(path)
         chunks = split_markdown(text)
         # 作り直しなので、まず古い断片を捨てる。
         db.forget_ref(self._conn, kind="doc", ref=ref)
-        if not chunks:
-            return 0
-
-        vectors = self._embedder.embed_many(chunks)
-        for i, chunk in enumerate(chunks):
-            db.upsert_chunk(
-                self._conn, kind="doc", text=chunk, ref=ref,
-                embedding=vectors[i] if vectors else None,
-            )
+        if chunks:
+            vectors = self._embedder.embed_many(chunks)
+            for i, chunk in enumerate(chunks):
+                db.upsert_chunk(
+                    self._conn, kind="doc", text=chunk, ref=ref,
+                    embedding=vectors[i] if vectors else None,
+                )
+        # 断片が0でも「見た」ことは残す。見出しだけのノートを毎回
+        # 読み直さずに済む。
+        db.mark_indexed(self._conn, ref=ref, mtime=stat.st_mtime, size=stat.st_size)
         return len(chunks)
 
+    def refresh(self) -> int:
+        """人が手で書き換えたノートだけを取り込み直す。
+
+        Obsidian などで直したノートは、こうしないと意味検索に出てこない。
+        全部を読み直すと埋め込みを作り直す分だけ重いので、更新時刻と
+        大きさが変わったものだけを見る。消えたノートの断片も片づける
+        （無いものを思い出してしまうため）。
+
+        返すのは「取り込み直した数」であって断片の数ではない。
+        """
+        known = db.indexed_files(self._conn)
+        seen: set[str] = set()
+        touched = 0
+
+        for path in self._vault.markdown_files():
+            ref = self._ref_for(path)
+            seen.add(ref)
+            try:
+                stat = path.stat()
+            except OSError:
+                continue
+            if known.get(ref) == (stat.st_mtime, stat.st_size):
+                continue
+            self.index_file(path)
+            touched += 1
+
+        for ref in known.keys() - seen:
+            db.forget_ref(self._conn, kind="doc", ref=ref)
+            db.forget_file(self._conn, ref=ref)
+            touched += 1
+
+        if touched:
+            log.info("書き換えられた記憶を取り込みました", ファイル=touched)
+        return touched
+
     def reindex(self) -> int:
+        """全部を読み直す。手で直した分だけでよければ `refresh()`。"""
         total = 0
         for path in self._vault.markdown_files():
             total += self.index_file(path)

@@ -338,14 +338,43 @@ sqlite3 $HOME\jarvis-data\db\jarvis.db "select ts, tool, decision, reason from a
 ```
 
 `profile.md` は自分の手で書いてよい。「毎朝6時に起きる」「辛いものが苦手」のように
-書いておくと、次の会話から効く。
+書いておくと、次の会話から効く。手で直した分は次に思い出すときに自動で取り込まれる
+（更新時刻が変わったファイルだけを見るので、増えても遅くならない）。
 
 ```powershell
-python -m jarvis reindex   # Markdown を手で直したあとに
+python -m jarvis reindex   # 全部を強制的に読み直す（ふだんは要らない）
 python -m jarvis sync      # 非公開リポへ保存する
 ```
 
 30分ごとに自動でコミットされる（`autocommit_minutes` で変えられる）。
+
+### Obsidian と併用する
+
+記憶は Markdown が正本なので、Obsidian をそのまま重ねられる。ジャービスは声で
+書き、Obsidian は目で見て手で直す。同じファイルを別の窓から触るだけで、
+どちらかに寄せる必要はない。
+
+**vault に指定するのは `~/jarvis-data/memory` だけ。** `~/jarvis-data` 全体を開くと
+`db/`・`logs/`・`screenshots/` まで抱き込む。
+
+`journal/YYYY-MM-DD.md` は Obsidian の日次ノートの既定形式と同じなので、
+デイリーノートの保存先を `journal` にすれば、そのまま繋がる。
+
+併用にあたって、ジャービス側は次のように振る舞う。
+
+- `.obsidian/`（設定・プラグイン）と `.trash/`（削除箱）は記憶として取り込まない。
+  避けないと、プラグインに付いてくる README を持ち主の記憶として思い出してしまう。
+- ノート先頭の YAML frontmatter（`status:` や `tags:`）は本文として取り込まない。
+- Obsidian で直したノートは、次に思い出すときに自動で取り込み直される。
+  消したノートの断片も一緒に片づく。
+
+**Obsidian Git プラグインは入れないこと。** ジャービスが30分ごとに同じリポジトリを
+コミットしているので、二重に走ると互いのコミットを奪い合う。版を残す役はジャービス側に
+任せる（押し出し先が公開リポだと止める安全装置も、そちら側にある）。
+
+スマホから読みたい場合、Obsidian Sync は有料（月5ドル前後）で、
+このプロジェクトの「運用にお金はかからない」という前提から外れる。
+無料で済ませるなら Syncthing などの同期に寄せる。
 
 ---
 

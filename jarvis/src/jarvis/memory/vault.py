@@ -95,7 +95,20 @@ class Vault:
         return "\n\n".join(f.read_text(encoding="utf-8") for f in files)
 
     def markdown_files(self) -> list[Path]:
-        return sorted(p for p in self._root.rglob("*.md") if p.is_file())
+        """索引に取り込む Markdown を集める。
+
+        隠しディレクトリの中身は記憶ではないので避ける。Obsidian を併用すると
+        `.obsidian/plugins/<名前>/README.md` のような、プラグインに付いてくる
+        説明書がこの下に増える。避けないと、それを持ち主の記憶として
+        思い出してしまう。`.trash/`（Obsidian の削除箱）と `.git/` も同じ理由で
+        外れる。
+        """
+        return sorted(
+            p
+            for p in self._root.rglob("*.md")
+            if p.is_file()
+            and not any(part.startswith(".") for part in p.relative_to(self._root).parts)
+        )
 
     # ---------------------------------------------------------------- 書き
 

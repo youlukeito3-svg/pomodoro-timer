@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable, Sequence
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -93,6 +93,15 @@ CREATE TABLE IF NOT EXISTS chunks (
     embedding BLOB
 );
 CREATE INDEX IF NOT EXISTS idx_chunks_kind ON chunks(kind);
+
+-- 索引に取り込んだ Markdown の状態。Obsidian などで人が直したノートを
+-- 見つけ出すためだけに持つ。中身は更新時刻と大きさだけなので、消えても
+-- 次の取り込みで作り直せる。
+CREATE TABLE IF NOT EXISTS file_index (
+    ref   TEXT PRIMARY KEY,
+    mtime REAL NOT NULL,
+    size  INTEGER NOT NULL
+);
 """
 
 
@@ -267,6 +276,29 @@ def forget_ref(conn: sqlite3.Connection, *, kind: str, ref: str) -> int:
     conn.execute(f"DELETE FROM chunks WHERE id IN ({marks})", ids)
     conn.commit()
     return len(ids)
+
+
+def indexed_files(conn: sqlite3.Connection) -> dict[str, tuple[float, int]]:
+    """取り込み済みの Markdown と、そのときの更新時刻・大きさ。"""
+    return {
+        r["ref"]: (float(r["mtime"]), int(r["size"]))
+        for r in conn.execute("SELECT ref, mtime, size FROM file_index")
+    }
+
+
+def mark_indexed(conn: sqlite3.Connection, *, ref: str, mtime: float, size: int) -> None:
+    conn.execute(
+        "INSERT INTO file_index(ref, mtime, size) VALUES(?, ?, ?) "
+        "ON CONFLICT(ref) DO UPDATE SET mtime = excluded.mtime, size = excluded.size",
+        (ref, mtime, size),
+    )
+    conn.commit()
+
+
+def forget_file(conn: sqlite3.Connection, *, ref: str) -> None:
+    """取り込み済みの印を消す。ノートそのものが消えたときに使う。"""
+    conn.execute("DELETE FROM file_index WHERE ref = ?", (ref,))
+    conn.commit()
 
 
 # ---------------------------------------------------------------- 読み出し

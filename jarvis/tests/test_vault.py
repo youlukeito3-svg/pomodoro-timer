@@ -57,6 +57,32 @@ def test_名前に細工が混ざっても外へ出ない(given: str, expected: 
     assert safe_name(given) == expected
 
 
+# ------------------------------------------------------------ 索引の対象
+
+
+def test_下の階層のノートも索引の対象になる(vault: Vault) -> None:
+    """Obsidian で好きにフォルダを切っても、記憶として拾われる。"""
+    (vault.root / "料理").mkdir()
+    (vault.root / "料理" / "カレー.md").write_text("# カレー", encoding="utf-8")
+    assert any(p.name == "カレー.md" for p in vault.markdown_files())
+
+
+def test_Obsidianの設定は記憶に混ざらない(vault: Vault) -> None:
+    """プラグインの README を持ち主の記憶として思い出さないこと。"""
+    plugin = vault.root / ".obsidian" / "plugins" / "dataview"
+    plugin.mkdir(parents=True)
+    (plugin / "README.md").write_text("# Dataview\n\nA plugin.", encoding="utf-8")
+    assert all(".obsidian" not in p.parts for p in vault.markdown_files())
+
+
+def test_消したノートは索引の対象から外れる(vault: Vault) -> None:
+    """Obsidian の削除箱に入れたものを、まだあるかのように思い出さない。"""
+    trash = vault.root / ".trash"
+    trash.mkdir()
+    (trash / "捨てた.md").write_text("# もう要らない", encoding="utf-8")
+    assert all("捨てた.md" != p.name for p in vault.markdown_files())
+
+
 def test_ここ数日の日誌をまとめて読める(vault: Vault) -> None:
     vault.append_journal("きのうのこと", day=date(2026, 8, 19))
     vault.append_journal("きょうのこと", day=date(2026, 8, 20))
