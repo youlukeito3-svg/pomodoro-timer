@@ -1,2 +1,7 @@
 # WSL 側で bash が読むので、Windows でチェックアウトしても CRLF に変換しない。
 *.sh text eol=lf
+
+# Windows PowerShell 5.1 は BOM の無い UTF-8 を cp932 として読む。日本語の
+# コメントが文字化けし、離れた行に構文エラーとして出る。BOM を落とさないよう
+# バイナリ扱いにし、改行も CRLF で固定する。
+*.ps1 -text
