@@ -1,7 +1,11 @@
 """一往復の流れ。どの入口から来ても同じ道を通ることを見る。
 
-Ollama は動いていない前提で書いてある。振り分けが使えないときは
-すべて頭に回る、というのが設計どおりの挙動なので、それも一緒に確かめられる。
+振り分け（Ollama）はここでは意図的に不通にしてある。使えないときは
+すべて頭に回る、というのが設計どおりの挙動で、それも一緒に確かめられる。
+
+不通を「入れていないから」に頼らないこと。開発機に Ollama を入れた途端、
+発話の分類がその場の気分で変わり、頭に渡るはずのものが雑談で片づいて
+落ちる。試すたびに結果が変わるテストは、無いよりたちが悪い。
 """
 
 import pytest
@@ -37,6 +41,9 @@ def config(tmp_path, monkeypatch):
     monkeypatch.setenv("JARVIS_CONFIG", "")
     cfg = load_config()
     cfg.paths.data_dir = str(tmp_path)
+    # 振り分けを確実に不通にする。9 番は discard で、何も待ち受けていない。
+    cfg.brain.router.ollama_url = "http://127.0.0.1:9"
+    cfg.brain.router.timeout_sec = 1.0
     cfg.ensure_dirs()
     return cfg
 

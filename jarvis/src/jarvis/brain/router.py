@@ -39,9 +39,15 @@ JSON だけを出力してください。形式: {"kind": "chitchat" | "work"}
 
 発話: """
 
+# 返事も JSON で受け取る。qwen3 のような推論する小型モデルは、そのまま
+# 書かせると「Okay, the user said ...」という英語の考えごとを先に吐き、
+# それが上限字数で切れて返事として出てくる。JSON の形に縛ると考えを挟む
+# 余地が無くなり、速さも 2秒から 0.3秒あたりまで縮む。
 REPLY_PROMPT = """あなたは「ジャービス」という名前の、日本語で話す執事です。
 落ち着いた口調で、1文か2文だけで短く返します。絵文字と記号は使いません。
-利用者の発話に返事をしてください。
+考えを書かず、返事だけを日本語で書いてください。
+
+JSON だけを出力してください。形式: {"reply": "返事の文"}
 
 発話: """
 
@@ -91,8 +97,18 @@ class Router:
         return "chitchat" if kind == "chitchat" else "work"
 
     def _chitchat(self, text: str) -> str | None:
-        reply = self._generate(REPLY_PROMPT + text)
-        return reply.strip() if reply else None
+        raw = self._generate(REPLY_PROMPT + text, json_mode=True)
+        if not raw:
+            return None
+        try:
+            reply = json.loads(raw).get("reply")
+        except (json.JSONDecodeError, AttributeError):
+            log.debug("返事の形を読めませんでした", raw=raw[:120])
+            return None
+        # 文字列以外が入っていたら、無理に読み上げず頭に回す。
+        if not isinstance(reply, str) or not reply.strip():
+            return None
+        return reply.strip()
 
     def _generate(self, prompt: str, *, json_mode: bool = False) -> str | None:
         payload: dict = {
