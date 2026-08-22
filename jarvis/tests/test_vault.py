@@ -75,6 +75,18 @@ def test_Obsidianの設定は記憶に混ざらない(vault: Vault) -> None:
     assert all(".obsidian" not in p.parts for p in vault.markdown_files())
 
 
+def test_手つかずの人物像は索引に入れない(vault: Vault) -> None:
+    """雛形の説明文は持ち主について何も語らないのに、何を尋ねても引っかかる。"""
+    assert vault.profile_is_untouched()
+    assert vault.profile not in vault.markdown_files()
+
+
+def test_一行でも書き足せば人物像は索引に入る(vault: Vault) -> None:
+    vault.append_profile("毎朝6時に起きる")
+    assert not vault.profile_is_untouched()
+    assert vault.profile in vault.markdown_files()
+
+
 def test_消したノートは索引の対象から外れる(vault: Vault) -> None:
     """Obsidian の削除箱に入れたものを、まだあるかのように思い出さない。"""
     trash = vault.root / ".trash"

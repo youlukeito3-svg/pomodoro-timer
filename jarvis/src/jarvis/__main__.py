@@ -273,7 +273,23 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _use_utf8_output() -> None:
+    """出力を UTF-8 にする。
+
+    日本語 Windows のコンソールは既定が cp932 で、doctor の `✓` や `▲` を
+    そのまま書くと UnicodeEncodeError で落ちる。診断を見ようとして落ちるのは
+    いちばん困る失敗なので、入口で直しておく。`errors="replace"` にしてあるので、
+    どうしても表せない文字があっても落ちずに済む。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, OSError, ValueError):
+            pass  # 差し替えられた stream には reconfigure が無いことがある
+
+
 def main(argv: list[str] | None = None) -> int:
+    _use_utf8_output()
     parser = build_parser()
     args = parser.parse_args(argv)
     func = getattr(args, "func", cmd_run)

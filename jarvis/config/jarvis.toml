@@ -31,8 +31,12 @@ language = "ja"
 # AivisSpeech Engine。VOICEVOX も同じ API なので URL を差し替えるだけで切り替わる。
 #   AivisSpeech : http://127.0.0.1:10101
 #   VOICEVOX    : http://127.0.0.1:50021
-engine_url = "http://127.0.0.1:10101"
-speaker_id = 888753760
+engine_url = "http://127.0.0.1:50021"
+# VOICEVOX の話者。執事らしい落ち着いた声として青山龍星を既定にした。
+# 変えたいときは起動中のエンジンの /speakers を開いて ID を調べる。
+#   13 青山龍星ノーマル / 11 玄野武宏 / 52 雀松朱司 / 30 No.7 アナウンス
+#   3 ずんだもん / 2 四国めたん
+speaker_id = 13
 speed = 1.1
 # 読み上げサーバ。Claude Code の Stop フックがここを叩く。
 listen_host = "127.0.0.1"

@@ -94,6 +94,10 @@ class Vault:
         files = sorted(directory.glob("*.md"))[-days:]
         return "\n\n".join(f.read_text(encoding="utf-8") for f in files)
 
+    def profile_is_untouched(self) -> bool:
+        """人物像がまだ雛形のままか。"""
+        return self.profile.is_file() and self.read_profile() == PROFILE_TEMPLATE
+
     def markdown_files(self) -> list[Path]:
         """索引に取り込む Markdown を集める。
 
@@ -102,11 +106,17 @@ class Vault:
         説明書がこの下に増える。避けないと、それを持ち主の記憶として
         思い出してしまう。`.trash/`（Obsidian の削除箱）と `.git/` も同じ理由で
         外れる。
+
+        まだ手が入っていない人物像も外す。雛形の説明文（「ここに書いたことは、
+        次の会話にも効く」）は持ち主について何も語っていないのに、何を尋ねても
+        それらしく引っかかる。1行でも書き足されたら、ふつうに取り込む。
         """
+        untouched_profile = self.profile if self.profile_is_untouched() else None
         return sorted(
             p
             for p in self._root.rglob("*.md")
             if p.is_file()
+            and p != untouched_profile
             and not any(part.startswith(".") for part in p.relative_to(self._root).parts)
         )
 

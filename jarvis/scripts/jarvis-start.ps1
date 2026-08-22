@@ -36,16 +36,27 @@ if (-not (Get-Process -Name "ollama" -ErrorAction SilentlyContinue)) {
     Write-Log "Ollama は起動しています"
 }
 
-# --- AivisSpeech ------------------------------------------------------------
-# 導入方法によってプロセス名が変わるので、それらしい名前をいくつか試す。
-# 見つからなくても致命的ではない（doctor が「口」の警告として拾う）ので、
-# ここでは止めずに知らせるだけにする。
-$aivisNames = @("AivisSpeech-Engine", "AivisSpeech", "run")
-$aivis = Get-Process -Name $aivisNames -ErrorAction SilentlyContinue
-if (-not $aivis) {
-    Write-Log "!! AivisSpeech らしきプロセスが見つかりません。手動で起動してください。声が出ません。"
+# --- 音声合成エンジン --------------------------------------------------------
+# AivisSpeech と VOICEVOX は API が同じで、どちらを使うかは jarvis.toml の
+# engine_url で決まる。導入方法によってプロセス名が変わるので、それらしい
+# 名前をいくつか試し、見つからなければ既定の場所から起動を試みる。
+# それでも駄目なら止めずに知らせるだけにする（doctor が「口」の警告で拾う）。
+$engineNames = @("AivisSpeech-Engine", "AivisSpeech", "VOICEVOX", "run")
+if (Get-Process -Name $engineNames -ErrorAction SilentlyContinue) {
+    Write-Log "音声合成エンジンは起動しています"
 } else {
-    Write-Log "AivisSpeech は起動しています"
+    $candidates = @(
+        (Join-Path $env:LOCALAPPDATA "Programs\VOICEVOX\VOICEVOX.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\AivisSpeech\AivisSpeech.exe")
+    )
+    $engine = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if ($engine) {
+        Write-Log "音声合成エンジンを起動します: $engine"
+        Start-Process $engine
+        Start-Sleep -Seconds 20   # エンジンが待ち受けを始めるまで待つ
+    } else {
+        Write-Log "!! 音声合成エンジンが見つかりません。手動で起動してください。声が出ません。"
+    }
 }
 
 # --- 本体 -------------------------------------------------------------------
