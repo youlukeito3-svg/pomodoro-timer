@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
@@ -21,6 +21,12 @@ from ..log import get_logger
 log = get_logger("頭")
 
 STAMP_FORMAT = "%Y%m%dT%H%M%S%f"
+
+# ファイルシステムが記録する mtime の分解能は time.time() より粗いことがあり
+# （Windows で顕著）、書いた直後に較べると mtime のほうがわずかに未来に
+# 丸まって見えることがある。「できたて」の判定がそれで狂わないよう、
+# 境界にこれだけの余裕を持たせる。
+_CLOCK_SLOP_SEC = 0.05
 
 
 @dataclass(frozen=True)
@@ -51,9 +57,19 @@ class Outbox:
 
     def put(self, text: str, **meta: object) -> Path:
         self._ensure()
-        stamp = datetime.now(timezone.utc).strftime(STAMP_FORMAT)
-        path = self._root / f"{stamp}.json"
-        payload = {"text": text, "ts": datetime.now(timezone.utc).isoformat(), **meta}
+        # システムクロックの分解能は環境によって粗く（Windows で十数ミリ秒
+        # 単位）、立て続けに put() すると同じスタンプになりうる。同名になると
+        # 順序が失われる（mark() で覚えた印より後ろに見えなくなる）だけでなく
+        # 前のファイルを上書きしてしまうので、衝突する間は1マイクロ秒ずつ
+        # ずらして一意な名前を探す。
+        now = datetime.now(timezone.utc)
+        while True:
+            stamp = now.strftime(STAMP_FORMAT)
+            path = self._root / f"{stamp}.json"
+            if not path.exists() and not (self._claimed / f"{stamp}.json").exists():
+                break
+            now += timedelta(microseconds=1)
+        payload = {"text": text, "ts": now.isoformat(), **meta}
         # 書き終わる前に拾われないよう、別名で書いてから置き換える。
         tmp = path.with_suffix(".json.part")
         tmp.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
@@ -82,7 +98,7 @@ class Outbox:
         長い作業を頼むと、待ち時間を超えてから返事が来る。それを捨てずに
         後から読み上げるための口。
         """
-        cutoff = time.time() - older_than_sec
+        cutoff = time.time() - older_than_sec + _CLOCK_SLOP_SEC
         for path in self._pending():
             try:
                 if path.stat().st_mtime > cutoff:

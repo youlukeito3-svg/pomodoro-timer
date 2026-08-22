@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "Write",
+      "TodoWrite",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(pytest:*)",
+      "Bash(python -m jarvis:*)",
+      "Bash(python3 -m jarvis:*)",
+      "Bash(pip install:*)",
+      "Bash(pip3 install:*)",
+      "Bash(ollama pull:*)",
+      "Bash(ollama list:*)",
+      "Bash(tmux:*)",
+      "Bash(claude --version)",
+      "Bash(wsl.exe -l:*)",
+      "Bash(bash scripts/*.sh)",
+      "Bash(./scripts/*.sh)",
+      "Bash(chmod +x scripts/*.sh)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(sudo:*)",
+      "Bash(winget:*)",
+      "Bash(wsl --shutdown)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(shutdown:*)",
+      "Read(./.env)",
+      "Read(./**/.env)",
+      "Read(./**/credentials.json)",
+      "Read(./**/token.json)",
+      "Read(./**/id_rsa)"
+    ]
+  }
+}

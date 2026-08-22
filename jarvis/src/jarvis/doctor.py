@@ -127,9 +127,53 @@ def check_allowlist(cfg: Config) -> list[Check]:
     ]
 
 
+def check_wsl_distro(cfg: Config) -> list[Check]:
+    """wsl_prefix が指すディストロが実在するかを確かめる。
+
+    `claude --version` や `tmux -V` が失敗しても、原因が「ディストロ名を
+    間違えている」なのか「その中に何かが入っていない」なのかは区別がつかない。
+    ここで先にディストロの実在だけを確かめておけば、あとの失敗は中身の問題だと
+    分かる。
+    """
+    prefix = list(cfg.brain.wsl_prefix)
+    if not prefix or "wsl" not in prefix[0].lower():
+        return []
+    distro = prefix[prefix.index("-d") + 1] if "-d" in prefix else None
+    if distro is None:
+        return []
+    code, out = _run(["wsl.exe", "-l", "-q"], timeout=10)
+    if code != 0:
+        return [
+            Check(
+                "WSL", "fatal", "wsl.exe -l -q が実行できません",
+                "WSL2 が入っているか確かめてください。",
+            )
+        ]
+    names = {
+        line.strip() for line in out.replace("\x00", "").splitlines() if line.strip()
+    }
+    if distro not in names:
+        return [
+            Check(
+                "WSL ディストロ", "fatal",
+                f"'{distro}' という名前のディストロが見つかりません"
+                f"（インストール済み: {', '.join(sorted(names)) or 'なし'}）",
+                "`wsl -l -q` で実際の名前を確認し、jarvis.toml の "
+                "[brain] wsl_prefix をその名前に合わせてください。",
+            )
+        ]
+    return [Check("WSL ディストロ", "ok", f"'{distro}' が見つかりました")]
+
+
 def check_brain(cfg: Config) -> list[Check]:
     out: list[Check] = []
     prefix = list(cfg.brain.wsl_prefix)
+
+    out += check_wsl_distro(cfg)
+    if blocking_failures(out):
+        # ディストロが無いのに claude --version 等を叩いても、
+        # 分かりにくい失敗が増えるだけなのでここで打ち切る。
+        return out
 
     code, ver = _run(prefix + [cfg.brain.claude_bin, "--version"], timeout=30)
     if code != 0:

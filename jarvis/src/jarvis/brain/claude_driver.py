@@ -143,9 +143,15 @@ class TmuxDriver(ClaudeDriver):
     def provision(self, assets_dir: Path) -> None:
         """WSL 側の作業ディレクトリに、頭が要るものを置く。
 
-        人格と出力の約束（CLAUDE.md）、フックの登録（settings.json）、
-        MCP の繋ぎ先（.mcp.json）、フック本体（stop_speak.py）の4つ。
-        毎回上書きするので、こちら側で直せば向こうにも反映される。
+        人格と出力の約束（persona.md → 向こうでは CLAUDE.md という名前で置く）、
+        フックの登録（settings.json）、MCP の繋ぎ先（.mcp.json）、
+        フック本体（stop_speak.py）の4つ。毎回上書きするので、こちら側で
+        直せば向こうにも反映される。
+
+        `persona.md` という名前にしてあるのは、`jarvis/` 直下にも開発者向けの
+        `CLAUDE.md`（PC 側の Claude Code 用の作業指示）が別にあり、
+        両者を混同しないため。配布先ではこれまでどおり `CLAUDE.md` という
+        名前で置く（Claude Code がプロジェクト指示として読む名前がそれだから）。
 
         MCP の繋ぎ先は Windows 側の localhost を指す。WSL2 をミラーモードに
         しておけば、そのまま通る。
@@ -159,7 +165,7 @@ class TmuxDriver(ClaudeDriver):
         settings.setdefault("env", {})["JARVIS_REPLY_URL"] = reply_url
 
         self._write_remote(
-            f"{workspace}/CLAUDE.md", (assets_dir / "CLAUDE.md").read_text(encoding="utf-8")
+            f"{workspace}/CLAUDE.md", (assets_dir / "persona.md").read_text(encoding="utf-8")
         )
         self._write_remote(
             f"{workspace}/.claude/settings.json",

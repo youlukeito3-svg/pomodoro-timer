@@ -6,6 +6,7 @@
     python -m jarvis say TEXT   読み上げてみる
     python -m jarvis ask TEXT   頭に投げて応答を見る（声を使わない）
     python -m jarvis test-ears  聞き取りだけ動かす
+    python -m jarvis warmup     聞き取りモデルを実際に読み込み、CUDA の可否を見る
     python -m jarvis budget     Claude を今日何回呼んだかを見る
     python -m jarvis recall Q   記憶から思い出せるものを見る
     python -m jarvis reindex    Markdown の記憶を索引に入れ直す
@@ -96,6 +97,41 @@ def cmd_test_ears(_args: argparse.Namespace) -> int:
             print(f"→ {heard}")
     except KeyboardInterrupt:
         pass
+    return 0
+
+
+def cmd_warmup(_args: argparse.Namespace) -> int:
+    """聞き取りモデルを実際に読み込ませる。
+
+    `nvidia-smi` が通っても、faster-whisper が要る cuBLAS / cuDNN の DLL が
+    足りないと、モデルを読み込んだ瞬間に初めて落ちる。doctor はここまで
+    見ていないので、「doctor は緑なのに喋りかけると落ちる」を防ぐために
+    実際に1回読み込ませる。
+    """
+    from .ears.stt import Transcriber
+
+    cfg = _boot(require_clean=False)
+    log = get_logger("耳")
+    log.info(
+        "聞き取りモデルを読み込みます",
+        model=cfg.ears.stt.model, device=cfg.ears.stt.device,
+    )
+    try:
+        Transcriber(cfg.ears.stt).warmup()
+    except ImportError:
+        print('耳の部品が入っていません。pip install -e ".[ears]" を実行してください。')
+        return 1
+    except Exception as e:  # noqa: BLE001 - 落ち方は CUDA まわりだけとは限らない
+        print(f"聞き取りモデルを読み込めませんでした: {e}")
+        if cfg.ears.stt.device == "cuda":
+            print(
+                "device = \"cuda\" での読み込みに失敗しています。"
+                "cuBLAS / cuDNN の DLL が入っているか確かめるか、"
+                "難しければ config/jarvis.toml の [ears.stt] を "
+                'device = "cpu", compute_type = "int8" に変えてください。'
+            )
+        return 1
+    print(f"聞き取りモデル（{cfg.ears.stt.model}, {cfg.ears.stt.device}）を読み込めました。")
     return 0
 
 
@@ -213,6 +249,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("panic", help="すべての操作を止める").set_defaults(func=cmd_panic)
     sub.add_parser("resume", help="操作を再開できるようにする").set_defaults(func=cmd_resume)
     sub.add_parser("test-ears", help="聞き取りだけ動かす").set_defaults(func=cmd_test_ears)
+    sub.add_parser("warmup", help="聞き取りモデルを読み込み、CUDA の可否を見る").set_defaults(func=cmd_warmup)
     sub.add_parser("reindex", help="記憶を索引に入れ直す").set_defaults(func=cmd_reindex)
     sub.add_parser("sync", help="記憶を非公開リポへ保存する").set_defaults(func=cmd_sync)
     sub.add_parser("serve-memory", help="記憶の MCP サーバ").set_defaults(func=cmd_serve_memory)

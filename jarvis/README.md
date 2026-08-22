@@ -95,6 +95,54 @@ Claude Code は Unix 環境が最も安定する。だから境界を1本だけ�
 
 ## 用意するもの
 
+判断が要らない部分（Python・Ollama の導入、依存関係、Ollama のモデル取得、
+WSL2 のミラーモード設定など）はスクリプトが自動でやる。話者 ID の選択、
+`~/jarvis-data` の非公開リポ化、Google 連携、`profile.md` の記入のような
+判断が要ることは、PC 側の Claude Code と対話しながら進める。
+
+### 前提
+
+- Windows 11 + NVIDIA GPU（常時起動）
+- WSL2 に Ubuntu が入っていること（無ければ `wsl --install -d Ubuntu` を実行し、
+  再起動後にユーザー名とパスワードを設定する）
+- コードを `C:\Users\<あなた>\jarvis-src` に clone してあること
+
+```powershell
+git clone -b claude/jarvis-assistant-system-5h1208 `
+  https://github.com/youlukeito3-svg/pomodoro-timer.git C:\Users\<あなた>\jarvis-src
+```
+
+### 進め方（推奨）
+
+1. WSL を開き、`jarvis/` ディレクトリで Claude Code を起動する
+   （未導入なら先に入れて、サブスクリプション＝Pro/Max のアカウントでログインする）。
+
+   ```bash
+   wsl
+   cd /mnt/c/Users/<あなた>/jarvis-src/jarvis
+   claude
+   ```
+
+2. 次のプロンプトを貼り付ける。
+
+   ```
+   このリポジトリの jarvis/CLAUDE.md を読んでください。そこに書かれた手順で、
+   このマシンにジャービスを導入してください。jarvis/scripts/setup-wsl.sh を
+   まず実行し、jarvis/scripts/setup-windows.ps1 は私（Windows 側の
+   PowerShell）に実行を頼んでください。そのあと、AivisSpeech の導入と話者
+   選び、記憶を非公開リポにする作業、Google 連携が要るかの確認、
+   python -m jarvis warmup による CUDA の確認、doctor での最終確認、
+   自動起動（autostart-install.ps1）の登録までを、対話しながら一つずつ
+   進めてください。
+   ```
+
+3. あとは Claude Code の指示に従う。判断を求められたら答え、Windows 側での
+   実行を頼まれたら PowerShell で実行する。詰まったら `python -m jarvis doctor`
+   の出力と、この README の「困ったとき」を見る。
+
+一つずつ手作業で進めたい場合、または Claude Code を介さずに確かめたい場合は、
+以下の各節を参照（`setup-wsl.sh` / `setup-windows.ps1` がやっていることの中身でもある）。
+
 ### 1. WSL2 をミラーモードにする
 
 `C:\Users\<あなた>\.wslconfig` を作る（無ければ新規）。
@@ -218,11 +266,27 @@ python -m jarvis           # 通しで起動
 python -m jarvis devices           # マイクとスピーカーの一覧
 python -m jarvis say "準備できました"  # 声が出るか
 python -m jarvis test-ears         # 聞き取りだけ動かす
+python -m jarvis warmup            # 聞き取りモデルを実際に読み込み、CUDA の可否を見る
 python -m jarvis ask "今日は何日"     # 頭に投げて応答を見る（声を使わない）
 python -m jarvis brief             # 毎朝の読み上げを今すぐ試す
 python -m jarvis recall "コーヒー"    # 記憶から思い出せるものを見る
 python -m jarvis budget            # Claude を今日何回呼んだか
 ```
+
+`nvidia-smi` が通っても、faster-whisper が要る cuBLAS / cuDNN の DLL が足りないと
+モデルを読み込んだ瞬間に初めて落ちる。`doctor` はそこまで見ていないので、
+「`doctor` は緑なのに喋りかけると落ちる」ときは `warmup` を実行して確かめる。
+
+### 自動起動（ログオン時）
+
+```powershell
+jarvis\scripts\autostart-install.ps1   # タスクスケジューラに登録する
+jarvis\scripts\autostart-remove.ps1    # 解除する
+```
+
+登録すると、次回ログオンから `jarvis\scripts\jarvis-start.ps1` が自動で走る。
+Ollama と AivisSpeech の起動を確かめ、`doctor` が緑なら `python -m jarvis run` を
+始める。ログは `~/jarvis-data/logs/autostart.log` に残る。
 
 ### 止める
 
@@ -327,11 +391,14 @@ git push -u origin main
 |---|---|
 | 呼びかけに反応しない | `wake_threshold` を 0.4 くらいに下げる。`jarvis devices` でマイクを確かめる |
 | 聞き取りが遅い | `[ears.stt]` の `device` が `cuda` になっているか。`nvidia-smi` が通るか |
+| `doctor` は緑なのに喋りかけると落ちる | `python -m jarvis warmup` を実行する。cuBLAS / cuDNN の DLL が足りないと、モデルを読み込む瞬間に初めて落ちる |
 | 声が出ない | AivisSpeech が起動しているか。`jarvis say` で単体で試す |
 | 返事が返ってこない | WSL で `tmux attach -t jarvis` して、頭の画面を直に見る |
 | 全部 Claude に回る | Ollama が落ちている。`ollama serve` を起動する |
 | 操作を断られる | `allowlist.yaml` にそのアプリが載っているか。`action_log` に理由が残っている |
 | 記憶が保存されない | `~/jarvis-data` が git リポジトリか。行き先が非公開か |
+| 自動起動しない | `~/jarvis-data/logs/autostart.log` を見る。タスクスケジューラに `Jarvis` が登録されているか（`Get-ScheduledTask -TaskName Jarvis`） |
+| `WSL ディストロ` で doctor が止まる | `wsl -l -q` で実際の名前を確認し、`config/jarvis.toml` の `[brain] wsl_prefix` をその名前に合わせる |
 
 ログは `~/jarvis-data/logs/jarvis.log` に JSON Lines で残る。
 どの段（耳・振り分け・頭・口・手・記憶）で詰まったかが `stage` で分かる。

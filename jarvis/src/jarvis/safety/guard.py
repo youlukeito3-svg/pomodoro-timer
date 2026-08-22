@@ -142,6 +142,10 @@ class Pending:
     tool: str
     args: dict
     expires_at: float
+    # 発行順。time.monotonic() の分解能は環境によって粗く（Windows で
+    # 十数ミリ秒単位）、立て続けに issue() すると expires_at が同値に
+    # なることがある。その同点を発行順で崩すためだけに使う。
+    seq: int = 0
     # 返事が届いたことを、待っている側へ知らせるための合図。
     answered: threading.Event = field(default_factory=threading.Event)
     agreed: bool | None = None
@@ -158,13 +162,15 @@ class ConfirmStore:
     def __init__(self, ttl_sec: int = 60) -> None:
         self._ttl = ttl_sec
         self._pending: dict[str, Pending] = {}
+        self._next_seq = 0
 
     def issue(self, *, tool: str, args: dict, question: str, now: float | None = None) -> Pending:
         now = time.monotonic() if now is None else now
         self._sweep(now)
+        self._next_seq += 1
         p = Pending(
             token=secrets.token_urlsafe(8), question=question,
-            tool=tool, args=args, expires_at=now + self._ttl,
+            tool=tool, args=args, expires_at=now + self._ttl, seq=self._next_seq,
         )
         self._pending[p.token] = p
         return p
@@ -219,7 +225,7 @@ class ConfirmStore:
         waiting = [p for p in self._pending.values() if not p.answered.is_set()]
         if not waiting:
             return None
-        return max(waiting, key=lambda p: p.expires_at)
+        return max(waiting, key=lambda p: (p.expires_at, p.seq))
 
     def cancel_all(self) -> int:
         n = len(self._pending)

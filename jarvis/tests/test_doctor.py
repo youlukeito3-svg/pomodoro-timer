@@ -3,6 +3,34 @@
 import pytest
 
 from jarvis import doctor
+from jarvis.config import Config
+
+
+def _cfg_with_wsl_prefix(prefix: list[str]) -> Config:
+    return Config.model_validate({"brain": {"wsl_prefix": prefix}})
+
+
+def test_wsl_prefixが空ならディストロを確認しない() -> None:
+    assert doctor.check_wsl_distro(_cfg_with_wsl_prefix([])) == []
+
+
+def test_ディストロが一覧にあれば通る(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(doctor, "_run", lambda cmd, timeout=10.0: (0, "Ubuntu\ndocker-desktop\n"))
+    checks = doctor.check_wsl_distro(_cfg_with_wsl_prefix(["wsl.exe", "-d", "Ubuntu", "--"]))
+    assert [c.level for c in checks] == ["ok"]
+
+
+def test_ディストロが一覧になければ起動を止める(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(doctor, "_run", lambda cmd, timeout=10.0: (0, "docker-desktop\n"))
+    checks = doctor.check_wsl_distro(_cfg_with_wsl_prefix(["wsl.exe", "-d", "Ubuntu", "--"]))
+    assert doctor.blocking_failures(checks)
+    assert "Ubuntu" in checks[0].detail
+
+
+def test_wsl_exeが動かなければ止める(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(doctor, "_run", lambda cmd, timeout=10.0: (127, "not found"))
+    checks = doctor.check_wsl_distro(_cfg_with_wsl_prefix(["wsl.exe", "-d", "Ubuntu", "--"]))
+    assert doctor.blocking_failures(checks)
 
 
 def test_環境が綺麗なら通る() -> None:

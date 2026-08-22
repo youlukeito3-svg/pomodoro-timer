@@ -1,0 +1,2 @@
+# WSL 側で bash が読むので、Windows でチェックアウトしても CRLF に変換しない。
+*.sh text eol=lf
