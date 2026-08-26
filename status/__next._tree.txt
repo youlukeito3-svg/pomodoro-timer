@@ -1,0 +1,3 @@
+:HL["/pomodoro-timer/_next/static/chunks/3v6ur5waf3lei.css","style"]
+:HL["/pomodoro-timer/fonts/fonts.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"status","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"cRmzxZhvkJYXz1J6NstYJ"}
